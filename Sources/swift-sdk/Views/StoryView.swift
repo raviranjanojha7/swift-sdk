@@ -1,5 +1,5 @@
 //
-//  ProfileView.swift
+//  StoryView.swift
 //  Insta-Stories
 //
 //  Created by Ravi Ranjan Ojha on 05/12/24.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public struct ProfileView: View {
+public struct StoryView: View {
 
     @Binding var stories: StoryBundle
     @Environment(\.colorScheme) var scheme
@@ -75,7 +75,7 @@ public struct ProfileView: View {
 
 
 #Preview {
-    ProfileView(stories: .constant(StoryBundle(
+    StoryView(stories: .constant(StoryBundle(
         profileName: "Canada", 
         stories: [
             Story(mediaURL: "https://www.boat-lifestyle.com/cdn/shop/files/quinn_zntjxmugklrk3vhl1fjxqr5g.mp4", isVideo: true),

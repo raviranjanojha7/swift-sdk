@@ -26,7 +26,7 @@ public struct MainView: View {
                         //Stories
                         ForEach($viewModel.stories) { $stories in
                             //ProfleView
-                            ProfileView(stories: $stories)
+                            StoryView(stories: $stories)
                                 .environmentObject(viewModel)
                         }
 
