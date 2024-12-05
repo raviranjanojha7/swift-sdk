@@ -9,17 +9,17 @@ import SwiftUI
 
 public struct StoryView: View {
 
-    @Binding var stories: StoryBundle
+    @Binding var stories: CardAndStoryBundle
     @Environment(\.colorScheme) var scheme
-    @EnvironmentObject var viewModel: StoryViewModel
+    @EnvironmentObject var viewModel: OverlayViewModel
 
-     public init(stories: Binding<StoryBundle>) {
-        self._stories = stories
+     public init(bundles: Binding<CardAndStoryBundle>) {
+        self._stories = bundles
     }
 
     public var body: some View {
         ZStack {
-            if let firstStory = stories.stories.first {
+            if let firstStory = stories.medias.first {
                 if firstStory.isVideo {
                     VideoPlayer(url: URL(string: firstStory.mediaURL))
                         .aspectRatio(contentMode: .fill)
@@ -64,8 +64,8 @@ public struct StoryView: View {
         .onTapGesture {
             print("Profile View Tapped - Debug")
             withAnimation {
-                viewModel.currentStory = stories.id
-                viewModel.showStory = true
+                viewModel.currentBundle = stories.id
+                viewModel.showOverlay = true
             }
         }
     }
@@ -75,12 +75,12 @@ public struct StoryView: View {
 
 
 #Preview {
-    StoryView(stories: .constant(StoryBundle(
+    StoryView(bundles: .constant(CardAndStoryBundle(
         profileName: "Canada", 
-        stories: [
-            Story(mediaURL: "https://www.boat-lifestyle.com/cdn/shop/files/quinn_zntjxmugklrk3vhl1fjxqr5g.mp4", isVideo: true),
-            Story(mediaURL: "https://www.boat-lifestyle.com/cdn/shop/files/quinn_zntjxmugklrk3vhl1fjxqr5g.mp4", isVideo: false),
+        medias: [
+            CardAndStory(mediaURL: "https://www.boat-lifestyle.com/cdn/shop/files/quinn_zntjxmugklrk3vhl1fjxqr5g.mp4", isVideo: true),
+            CardAndStory(mediaURL: "https://www.boat-lifestyle.com/cdn/shop/files/quinn_zntjxmugklrk3vhl1fjxqr5g.mp4", isVideo: false),
         ]
     )))
-    .environmentObject(StoryViewModel())
+    .environmentObject(OverlayViewModel())
 }

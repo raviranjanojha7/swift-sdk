@@ -1,25 +1,25 @@
 //
 //  Model.swift
-//  Insta-Stories
+//  Insta-medias
 //
 //  Created by Ravi Ranjan Ojha on 19/03/24.
 //
 
 import Foundation
 
-//Numbers of stories for users
-public struct StoryBundle: Identifiable, Hashable {
+//Numbers of medias for users
+public struct CardAndStoryBundle: Identifiable, Hashable {
     public var id = UUID().uuidString
     public var profileName: String
-    public var stories: [Story]
+    public var medias: [CardAndStory]
     
-    public init(profileName: String, stories: [Story]) {
+    public init(profileName: String, medias: [CardAndStory]) {
         self.profileName = profileName
-        self.stories = stories
+        self.medias = medias
     }
 }
 
-public struct Story: Identifiable, Hashable {
+public struct CardAndStory: Identifiable, Hashable {
     public var id = UUID().uuidString
     public var mediaURL: String
     public var isVideo: Bool
@@ -30,24 +30,4 @@ public struct Story: Identifiable, Hashable {
     }
 }
 
-public struct CardBundle: Identifiable, Hashable {
-    public var id = UUID().uuidString
-    public var profileName: String
-    public var cards: [Card]
-    
-    public init(profileName: String, cards: [Card]) {
-        self.profileName = profileName
-        self.cards = cards
-    }
-}
 
-public struct Card: Identifiable, Hashable {
-    public var id = UUID().uuidString
-    public var mediaURL: String
-    public var isVideo: Bool
-    
-    public init(mediaURL: String, isVideo: Bool) {
-        self.mediaURL = mediaURL
-        self.isVideo = isVideo
-    }
-}

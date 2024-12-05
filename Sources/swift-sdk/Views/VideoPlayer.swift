@@ -4,11 +4,14 @@ import AVKit
 public struct VideoPlayer: View {
     let url: URL?
     @State private var player: AVPlayer?
+    @State private var playerObserver: Any?
     
     public init(url: URL?) {
         self.url = url
         if let url = url {
-            self._player = State(initialValue: AVPlayer(url: url))
+            let player = AVPlayer(url: url)
+            player.isMuted = true  // Mute the player
+            self._player = State(initialValue: player)
         }
     }
     
@@ -19,7 +22,7 @@ public struct VideoPlayer: View {
                 .onAppear {
                     player.seek(to: .zero)
                     player.play()
-                    NotificationCenter.default.addObserver(
+                    self.playerObserver = NotificationCenter.default.addObserver(
                         forName: .AVPlayerItemDidPlayToEndTime,
                         object: player.currentItem,
                         queue: .main
@@ -31,6 +34,9 @@ public struct VideoPlayer: View {
                 .onDisappear {
                     player.pause()
                     player.seek(to: .zero)
+                    if let observer = playerObserver {
+                        NotificationCenter.default.removeObserver(observer)
+                    }
                 }
         } else {
             Image(systemName: "video.slash")

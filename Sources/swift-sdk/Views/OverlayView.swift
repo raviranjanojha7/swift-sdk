@@ -8,36 +8,28 @@
 import SwiftUI
 
 struct OverlayView: View {
-    @EnvironmentObject var viewModel: StoryViewModel
+    @EnvironmentObject var viewModel: OverlayViewModel
 
     @State private var offset = CGSize.zero
     @State private var fade: Bool = false
 
     var body: some View {
-
-
-        if viewModel.showStory {
-            TabView(selection: $viewModel.currentStory) {
-                //stories
-                ForEach($viewModel.stories) { $stories in
-                    OverlayCardView(storiesBundle: $stories)
+        if viewModel.showOverlay {
+            TabView(selection: $viewModel.currentBundle) {
+                ForEach($viewModel.bundles) { $bundle in
+                    OverlayCardView(cardAndStories: $bundle)
                         .environmentObject(viewModel)
                 }
             }
-
-
             .tabViewStyle(.page(indexDisplayMode: .never))
             .frame(maxWidth: .infinity, maxHeight: .infinity)
             .background(.black)
             .opacity(fade ? 0.3 : 1)
-
-            //dismissing
             .offset(y: offset.height)
             .simultaneousGesture(
                 DragGesture()
                     .onChanged { gesture in
                         guard gesture.translation.height > .zero else { return }
-
                         if gesture.translation.height > 20 {
                             withAnimation {
                                 offset = gesture.translation
@@ -47,13 +39,12 @@ struct OverlayView: View {
                     }
                     .onEnded { gesture in
                         if gesture.translation.height > 100 {
-                            // Swipe down detected, trigger dismiss with animation
                             withAnimation {
-                                viewModel.showStory = false
+                                viewModel.showOverlay = false
                             }
                         } else {
                             withAnimation {
-                                viewModel.showStory = true
+                                viewModel.showOverlay = true
                             }
                         }
                         withAnimation {

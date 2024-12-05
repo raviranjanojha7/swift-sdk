@@ -9,12 +9,12 @@ import SwiftUI
 
 struct OverlayTopIndicator: View {
 
-    @Binding var storiesBundle: StoryBundle
+    @Binding var bundle: CardAndStoryBundle
     @Binding var timerProgress: CGFloat
 
     var body: some View {
         HStack(spacing: 5) {
-            ForEach(storiesBundle.stories.indices, id: \.self) { index in
+            ForEach(bundle.medias.indices, id: \.self) { index in
                 GeometryReader { geometry in
                     let width = geometry.size.width
 
@@ -46,8 +46,8 @@ struct OverlayTopIndicator: View {
 
 
 #Preview {
-    OverlayTopIndicator(storiesBundle: .constant(StoryBundle(profileName: "Canada", stories: [
-        Story(mediaURL: "https://www.boat-lifestyle.com/cdn/shop/files/quinn_zntjxmugklrk3vhl1fjxqr5g.mp4", isVideo: true),
-        Story(mediaURL: "https://www.boat-lifestyle.com/cdn/shop/files/quinn_zntjxmugklrk3vhl1fjxqr5g.mp4", isVideo: true),
+    OverlayTopIndicator(bundle: .constant(CardAndStoryBundle(profileName: "Canada", medias: [
+        CardAndStory(mediaURL: "https://www.boat-lifestyle.com/cdn/shop/files/quinn_zntjxmugklrk3vhl1fjxqr5g.mp4", isVideo: true),
+        CardAndStory(mediaURL: "https://www.boat-lifestyle.com/cdn/shop/files/quinn_zntjxmugklrk3vhl1fjxqr5g.mp4", isVideo: true),
     ])), timerProgress: .constant(1.0))
 }

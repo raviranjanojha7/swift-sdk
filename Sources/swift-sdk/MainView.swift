@@ -1,6 +1,6 @@
 //
 //  MainView.swift
-//  Insta-Stories
+//  Insta-bundles
 //
 //  Created by Ravi Ranjan Ojha on 01/04/24.
 //
@@ -9,9 +9,9 @@ import SwiftUI
 
 public struct MainView: View {
 
-    @StateObject private var viewModel = StoryViewModel()
+    @StateObject private var viewModel = OverlayViewModel()
 
-     public init(viewModel: StoryViewModel = StoryViewModel()) {
+     public init(viewModel: OverlayViewModel = OverlayViewModel()) {
         _viewModel = StateObject(wrappedValue: viewModel)
     }
 
@@ -20,18 +20,31 @@ public struct MainView: View {
         NavigationStack {
             ScrollView(.vertical, showsIndicators: false) {
                 ScrollView(.horizontal, showsIndicators: false) {
-                    //showing stories
-                    HStack(spacing: 12) {
+                    //showing bundles
+                    HStack {
 
-                        //Stories
-                        ForEach($viewModel.stories) { $stories in
+                        //bundles
+                        ForEach($viewModel.bundles) { $bundles in
                             //ProfleView
-                            StoryView(stories: $stories)
+                            StoryView(bundles: $bundles)
+                                .environmentObject(viewModel)
+                        }
+                    }
+                    .padding(.leading)
+
+                }
+                
+                ScrollView(.horizontal, showsIndicators: false) {
+                    HStack(spacing: 0) {
+                        
+                        
+                        ForEach($viewModel.bundles) { $bundles in
+                            //ProfleView
+                            CardView(bundles: $bundles)
                                 .environmentObject(viewModel)
                         }
 
                     }
-                    .padding()
                 }
             }
         }

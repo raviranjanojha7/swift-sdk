@@ -9,8 +9,8 @@ import SwiftUI
 
 public struct OverlayCardView: View {
 
-    @Binding var storiesBundle: StoryBundle
-    @EnvironmentObject var viewModel: StoryViewModel
+    @Binding var cardAndStories: CardAndStoryBundle
+    @EnvironmentObject var viewModel: OverlayViewModel
 
     //Timer and Changing Based on Timer
     @State var timer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
@@ -21,8 +21,8 @@ public struct OverlayCardView: View {
     // Add this to force view refresh when story changes
     @State private var currentStoryIndex: Int = 0
 
-    public init(storiesBundle: Binding<StoryBundle>) {
-        self._storiesBundle = storiesBundle
+    public init(cardAndStories: Binding<CardAndStoryBundle>) {
+        self._cardAndStories = cardAndStories
     }
 
     public var body: some View {
@@ -33,16 +33,16 @@ public struct OverlayCardView: View {
 
                 //Getting current Index
                 //And updating data
-                let index = min(Int(timerProgress), storiesBundle.stories.count - 1)
+                let index = min(Int(timerProgress), cardAndStories.medias.count - 1)
 
-                let story = storiesBundle.stories[index]
-                if story.isVideo {
-                    VideoPlayer(url: URL(string: story.mediaURL))
+                let overlayMedia = cardAndStories.medias[index]
+                if overlayMedia.isVideo {
+                    VideoPlayer(url: URL(string: overlayMedia.mediaURL))
                         .frame(width: proxy.size.width, height: proxy.size.height)
                         .clipShape(RoundedRectangle(cornerRadius: 15))
                         .id("video_\(index)") // Add unique ID to force view refresh
                 } else {
-                    AsyncImage(url: URL(string: story.mediaURL)) { phase in
+                    AsyncImage(url: URL(string: overlayMedia.mediaURL)) { phase in
                         switch phase {
                         case .success(let image):
                             image
@@ -74,7 +74,7 @@ public struct OverlayCardView: View {
                         .onTapGesture {
                             if (timerProgress - 1) < 0 {
                                 //update to next
-                                updateStory(forward: false)
+                                updateOverlay(forward: false)
                             } else {
                                 timerProgress = CGFloat(Int(timerProgress - 1))
                             }
@@ -83,9 +83,9 @@ public struct OverlayCardView: View {
                     Rectangle()
                         .fill(.black.opacity(0.01))
                         .onTapGesture {
-                            if (timerProgress + 1) > CGFloat(storiesBundle.stories.count) {
+                            if (timerProgress + 1) > CGFloat(cardAndStories.medias.count) {
                                 //update to next
-                                updateStory()
+                                updateOverlay()
                             } else {
                                 timerProgress = CGFloat(Int(timerProgress + 1))
                             }
@@ -95,7 +95,7 @@ public struct OverlayCardView: View {
 
             //Top Timer Capsule
             .overlay(
-                OverlayTopIndicator(storiesBundle: $storiesBundle, timerProgress: $timerProgress)
+                OverlayTopIndicator(bundle: $cardAndStories, timerProgress: $timerProgress)
                     .frame(height: 1.4)
                     .padding(.horizontal)
                 ,alignment: .top
@@ -118,19 +118,19 @@ public struct OverlayCardView: View {
 
         .onReceive(timer, perform: { _ in
             //updating timer
-            if viewModel.currentStory == storiesBundle.id {
-                if timerProgress < CGFloat(storiesBundle.stories.count) - 1 {
+            if viewModel.currentBundle == cardAndStories.id {
+                if timerProgress < CGFloat(cardAndStories.medias.count) - 1 {
                     timerProgress += 0.02
                     // Update currentStoryIndex when story changes
-                    let newIndex = min(Int(timerProgress), storiesBundle.stories.count - 1)
+                    let newIndex = min(Int(timerProgress), cardAndStories.medias.count - 1)
                     if currentStoryIndex != newIndex {
                         currentStoryIndex = newIndex
                     }
                 } else {
-                    if timerProgress < CGFloat(storiesBundle.stories.count) {
+                    if timerProgress < CGFloat(cardAndStories.medias.count) {
                         timerProgress += 0.02
                     } else {
-                        updateStory()
+                        updateOverlay()
                     }
                 }
             }
@@ -138,23 +138,23 @@ public struct OverlayCardView: View {
     }
 
     //updating on End
-    private func updateStory(forward: Bool = true) {
+    private func updateOverlay(forward: Bool = true) {
         withAnimation(.easeInOut) {
             if forward {
-                if let nextID = viewModel.nextStoryID(currentID: viewModel.currentStory) {
+                if let nextID = viewModel.nextBundleID(currentID: viewModel.currentBundle) {
                     // There's a next story, so update the current story to it.
-                    viewModel.currentStory = nextID
+                    viewModel.currentBundle = nextID
                     // Reset progress when moving to next story
                     timerProgress = 0
                     currentStoryIndex = 0
                 } else {
                     // There's no next story, indicating this is the last one. Hide the story view.
-                    viewModel.showStory = false
+                    viewModel.showOverlay = false
                 }
             } else {
-                if let prevID = viewModel.previousStoryID(currentID: viewModel.currentStory) {
+                if let prevID = viewModel.previousBundleID(currentID: viewModel.currentBundle) {
                     // There's a previous story, so update the current story to it.
-                    viewModel.currentStory = prevID
+                    viewModel.currentBundle = prevID
                     // Reset progress when moving to previous story
                     timerProgress = 0
                     currentStoryIndex = 0
@@ -179,11 +179,11 @@ public struct OverlayCardView: View {
 
 
 #Preview {
-    OverlayCardView(storiesBundle:  .constant(StoryBundle(
+    OverlayCardView(cardAndStories:  .constant(CardAndStoryBundle(
         profileName: "Canada",
-        stories: [
-            Story(mediaURL: "https://www.boat-lifestyle.com/cdn/shop/files/quinn_zntjxmugklrk3vhl1fjxqr5g.mp4", isVideo: true),
-            Story(mediaURL: "https://www.boat-lifestyle.com/cdn/shop/files/quinn_zntjxmugklrk3vhl1fjxqr5g.mp4", isVideo: false),
+        medias: [
+            CardAndStory(mediaURL: "https://www.boat-lifestyle.com/cdn/shop/files/quinn_zntjxmugklrk3vhl1fjxqr5g.mp4", isVideo: true),
+            CardAndStory(mediaURL: "https://www.boat-lifestyle.com/cdn/shop/files/quinn_zntjxmugklrk3vhl1fjxqr5g.mp4", isVideo: false),
         ]
-    ))).environmentObject(StoryViewModel())
+    ))).environmentObject(OverlayViewModel())
 }
