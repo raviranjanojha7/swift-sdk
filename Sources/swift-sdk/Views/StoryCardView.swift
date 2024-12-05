@@ -18,6 +18,9 @@ public struct StoryCardView: View {
     //Progress
     @State var timerProgress: CGFloat = .zero
 
+    // Add this to force view refresh when story changes
+    @State private var currentStoryIndex: Int = 0
+
     public init(storiesBundle: Binding<StoryBundle>) {
         self._storiesBundle = storiesBundle
     }
@@ -37,6 +40,7 @@ public struct StoryCardView: View {
                     VideoPlayer(url: URL(string: story.mediaURL))
                         .frame(width: proxy.size.width, height: proxy.size.height)
                         .clipShape(RoundedRectangle(cornerRadius: 15))
+                        .id("video_\(index)") // Add unique ID to force view refresh
                 } else {
                     AsyncImage(url: URL(string: story.mediaURL)) { phase in
                         switch phase {
@@ -109,6 +113,7 @@ public struct StoryCardView: View {
         //reseting timer
         .onAppear(perform: {
             timerProgress = 0
+            currentStoryIndex = 0
         })
 
         .onReceive(timer, perform: { _ in
@@ -116,6 +121,11 @@ public struct StoryCardView: View {
             if viewModel.currentStory == storiesBundle.id {
                 if timerProgress < CGFloat(storiesBundle.stories.count) - 1 {
                     timerProgress += 0.02
+                    // Update currentStoryIndex when story changes
+                    let newIndex = min(Int(timerProgress), storiesBundle.stories.count - 1)
+                    if currentStoryIndex != newIndex {
+                        currentStoryIndex = newIndex
+                    }
                 } else {
                     if timerProgress < CGFloat(storiesBundle.stories.count) {
                         timerProgress += 0.02
@@ -134,6 +144,9 @@ public struct StoryCardView: View {
                 if let nextID = viewModel.nextStoryID(currentID: viewModel.currentStory) {
                     // There's a next story, so update the current story to it.
                     viewModel.currentStory = nextID
+                    // Reset progress when moving to next story
+                    timerProgress = 0
+                    currentStoryIndex = 0
                 } else {
                     // There's no next story, indicating this is the last one. Hide the story view.
                     viewModel.showStory = false
@@ -142,6 +155,9 @@ public struct StoryCardView: View {
                 if let prevID = viewModel.previousStoryID(currentID: viewModel.currentStory) {
                     // There's a previous story, so update the current story to it.
                     viewModel.currentStory = prevID
+                    // Reset progress when moving to previous story
+                    timerProgress = 0
+                    currentStoryIndex = 0
                 } else {
                     // Optionally, handle if you're at the first story and attempting to go back further,
                     // which might not change the visibility but could reset to a default view or perform another action.

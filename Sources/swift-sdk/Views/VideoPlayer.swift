@@ -3,17 +3,21 @@ import AVKit
 
 public struct VideoPlayer: View {
     let url: URL?
+    @State private var player: AVPlayer?
     
     public init(url: URL?) {
         self.url = url
+        if let url = url {
+            self._player = State(initialValue: AVPlayer(url: url))
+        }
     }
     
     public var body: some View {
-        if let url = url {
-            let player = AVPlayer(url: url)
+        if let player = player {
             AVKit.VideoPlayer(player: player)
                 .aspectRatio(contentMode: .fill)
                 .onAppear {
+                    player.seek(to: .zero)
                     player.play()
                     NotificationCenter.default.addObserver(
                         forName: .AVPlayerItemDidPlayToEndTime,
@@ -23,6 +27,10 @@ public struct VideoPlayer: View {
                         player.seek(to: .zero)
                         player.play()
                     }
+                }
+                .onDisappear {
+                    player.pause()
+                    player.seek(to: .zero)
                 }
         } else {
             Image(systemName: "video.slash")
