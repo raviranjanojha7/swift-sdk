@@ -7,13 +7,17 @@
 
 import SwiftUI
 
-struct OverlayView: View {
+public struct OverlayView: View {
     @EnvironmentObject var viewModel: OverlayViewModel
 
     @State private var offset = CGSize.zero
     @State private var fade: Bool = false
+    
+    public init() {
+    }
+    
 
-    var body: some View {
+    public var body: some View {
         if viewModel.showOverlay {
             TabView(selection: $viewModel.currentBundle) {
                 ForEach($viewModel.bundles) { $bundle in
