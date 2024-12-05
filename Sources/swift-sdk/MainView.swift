@@ -36,7 +36,7 @@ public struct MainView: View {
             }
         }
         .overlay(
-            StoryView()
+            OverlayView()
                 .environmentObject(viewModel)
         )
     }

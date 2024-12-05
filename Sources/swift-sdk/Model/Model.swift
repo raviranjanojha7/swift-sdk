@@ -29,3 +29,25 @@ public struct Story: Identifiable, Hashable {
         self.isVideo = isVideo
     }
 }
+
+public struct CardBundle: Identifiable, Hashable {
+    public var id = UUID().uuidString
+    public var profileName: String
+    public var cards: [Card]
+    
+    public init(profileName: String, cards: [Card]) {
+        self.profileName = profileName
+        self.cards = cards
+    }
+}
+
+public struct Card: Identifiable, Hashable {
+    public var id = UUID().uuidString
+    public var mediaURL: String
+    public var isVideo: Bool
+    
+    public init(mediaURL: String, isVideo: Bool) {
+        self.mediaURL = mediaURL
+        self.isVideo = isVideo
+    }
+}

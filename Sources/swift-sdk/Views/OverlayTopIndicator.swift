@@ -1,5 +1,5 @@
 //
-//  StoryTopIndicator.swift
+//  OverlayTopIndicator.swift
 //  Insta-Stories
 //
 //  Created by Ravi Ranjan Ojha on 01/04/24.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct StoryTopIndicator: View {
+struct OverlayTopIndicator: View {
 
     @Binding var storiesBundle: StoryBundle
     @Binding var timerProgress: CGFloat
@@ -46,7 +46,7 @@ struct StoryTopIndicator: View {
 
 
 #Preview {
-    StoryTopIndicator(storiesBundle: .constant(StoryBundle(profileName: "Canada", stories: [
+    OverlayTopIndicator(storiesBundle: .constant(StoryBundle(profileName: "Canada", stories: [
         Story(mediaURL: "https://www.boat-lifestyle.com/cdn/shop/files/quinn_zntjxmugklrk3vhl1fjxqr5g.mp4", isVideo: true),
         Story(mediaURL: "https://www.boat-lifestyle.com/cdn/shop/files/quinn_zntjxmugklrk3vhl1fjxqr5g.mp4", isVideo: true),
     ])), timerProgress: .constant(1.0))

@@ -1,5 +1,5 @@
 //
-//  StoryCardView.swift
+//  OverlayCardView.swift
 //  Insta-Stories
 //
 //  Created by Ravi Ranjan Ojha on 05/12/24.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-public struct StoryCardView: View {
+public struct OverlayCardView: View {
 
     @Binding var storiesBundle: StoryBundle
     @EnvironmentObject var viewModel: StoryViewModel
@@ -95,7 +95,7 @@ public struct StoryCardView: View {
 
             //Top Timer Capsule
             .overlay(
-                StoryTopIndicator(storiesBundle: $storiesBundle, timerProgress: $timerProgress)
+                OverlayTopIndicator(storiesBundle: $storiesBundle, timerProgress: $timerProgress)
                     .frame(height: 1.4)
                     .padding(.horizontal)
                 ,alignment: .top
@@ -179,7 +179,7 @@ public struct StoryCardView: View {
 
 
 #Preview {
-    StoryCardView(storiesBundle:  .constant(StoryBundle(
+    OverlayCardView(storiesBundle:  .constant(StoryBundle(
         profileName: "Canada",
         stories: [
             Story(mediaURL: "https://www.boat-lifestyle.com/cdn/shop/files/quinn_zntjxmugklrk3vhl1fjxqr5g.mp4", isVideo: true),

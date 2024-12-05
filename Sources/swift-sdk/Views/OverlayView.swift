@@ -1,5 +1,5 @@
 //
-//  StoryView.swift
+//  OverlayView.swift
 //  Insta-Stories
 //
 //  Created by Ravi Ranjan Ojha on 30/03/24.
@@ -7,7 +7,7 @@
 
 import SwiftUI
 
-struct StoryView: View {
+struct OverlayView: View {
     @EnvironmentObject var viewModel: StoryViewModel
 
     @State private var offset = CGSize.zero
@@ -20,7 +20,7 @@ struct StoryView: View {
             TabView(selection: $viewModel.currentStory) {
                 //stories
                 ForEach($viewModel.stories) { $stories in
-                    StoryCardView(storiesBundle: $stories)
+                    OverlayCardView(storiesBundle: $stories)
                         .environmentObject(viewModel)
                 }
             }
