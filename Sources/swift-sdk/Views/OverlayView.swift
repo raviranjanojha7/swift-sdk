@@ -60,3 +60,7 @@ public struct OverlayView: View {
         }
     }
 }
+
+#Preview {
+    OverlayView()
+}

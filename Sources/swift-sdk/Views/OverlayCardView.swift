@@ -92,13 +92,19 @@ public struct OverlayCardView: View {
                         }
                 }
             )
-
             //Top Timer Capsule
             .overlay(
                 OverlayTopIndicator(bundle: $cardAndStories, timerProgress: $timerProgress)
                     .frame(height: 1.4)
                     .padding(.horizontal)
                 ,alignment: .top
+            )
+            .overlay(Button {
+                viewModel.currentBundle = ""
+                viewModel.showOverlay = false
+                    } label: {
+                        XDismissButton().padding(.top, 5)
+                    }, alignment: .topTrailing
             )
 
             //rotation
@@ -182,7 +188,7 @@ public struct OverlayCardView: View {
     OverlayCardView(cardAndStories:  .constant(CardAndStoryBundle(
         profileName: "Canada",
         medias: [
-            CardAndStory(mediaURL: "https://www.boat-lifestyle.com/cdn/shop/files/quinn_zntjxmugklrk3vhl1fjxqr5g.mp4", isVideo: true),
+            CardAndStory(mediaURL: "https://www.boat-lifestyle.com/cdn/shop/files/quinn_rc2jan2cq4z130ey73re7bau.mp4", isVideo: true),
             CardAndStory(mediaURL: "https://www.boat-lifestyle.com/cdn/shop/files/quinn_zntjxmugklrk3vhl1fjxqr5g.mp4", isVideo: false),
         ]
     ))).environmentObject(OverlayViewModel())
