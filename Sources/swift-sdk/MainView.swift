@@ -10,6 +10,7 @@ import SwiftUI
 public struct MainView: View {
 
     @StateObject private var viewModel = OverlayViewModel()
+    @StateObject var playlistModel = PlaylistViewModel()
 
      public init(viewModel: OverlayViewModel = OverlayViewModel()) {
         _viewModel = StateObject(wrappedValue: viewModel)
@@ -47,6 +48,10 @@ public struct MainView: View {
                     }
                 }
             }
+        }
+        .task {
+            print("hereeeeeee")
+            playlistModel.getPlaylistData()
         }
         .overlay(
             OverlayView()
