@@ -42,6 +42,3 @@ enum APIError: Error {
     case cannotParse
 }
 
-struct PlaylistResponse: Codable {
-    let playlist: String
-}

@@ -18,11 +18,16 @@ class WidgetViewModel: ObservableObject {
     @Published var handle = ""
     @Published var isOverlayOpen = false
     
-    
-    init() {
-    }
-    
-    
   
 }
 
+
+extension WidgetViewModel {
+    func updatePlaylist(_ newPlaylist: PlaylistData?) {
+        playlist = newPlaylist
+    }
+    
+    func updateMediaData(_ newMediaData: [String: OverlayMediaItem]) {
+        mediaData = newMediaData
+    }
+}

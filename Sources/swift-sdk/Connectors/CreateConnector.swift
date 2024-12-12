@@ -27,9 +27,9 @@ func getConnector() throws -> BaseConnector {
     let currentGlobalState = Global.shared
     
     let connectorPayload = Connector(
-        shop: currentGlobalState.shopDomain,
-        accessToken: currentGlobalState.sft,
-        shopType: currentGlobalState.shopType
+        shop: currentGlobalState.quinn.shopDomain,
+        accessToken: currentGlobalState.quinn.sft,
+        shopType: currentGlobalState.quinn.shopType
     )
     
     do {

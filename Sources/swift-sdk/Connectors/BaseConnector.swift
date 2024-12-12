@@ -8,7 +8,7 @@
 import Foundation
 
 protocol BaseConnector {
-    func getPlaylistData() async throws -> PlaylistData
+    func getPlaylistData(handle: String, paginatedHash: String?) async throws -> PlaylistData
     func getSettings()
     func getProductsData()
     func getPlaylistHandle()

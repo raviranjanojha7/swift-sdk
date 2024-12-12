@@ -33,7 +33,7 @@ struct Quinn: Codable, Identifiable {
     let shopDomain: String
     let shopType: ShopType
     let apiCache: [String: String]
-    let functions: QuinnFunctions
+    let functions: DefaultQuinnFunctions
     let currencySymbol: String
     let settings: QuinnSettings
     let appId: String
@@ -58,7 +58,6 @@ struct Quinn: Codable, Identifiable {
         case shopDomain = "shop_domain"
         case shopType = "shop_type"
         case apiCache = "api_cache"
-        case functions
         case currencySymbol = "currency_symbol"
         case settings
         case appId = "app_id"
@@ -74,6 +73,115 @@ struct Quinn: Codable, Identifiable {
         case fontFamily
         case version
         case styles
+    }
+    
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        
+        self.sft = try container.decode(String.self, forKey: .sft)
+        self.cdn = try container.decode(String.self, forKey: .cdn)
+        self.shopDomain = try container.decode(String.self, forKey: .shopDomain)
+        self.shopType = try container.decode(ShopType.self, forKey: .shopType)
+        self.apiCache = try container.decode([String: String].self, forKey: .apiCache)
+        self.functions = DefaultQuinnFunctions()
+        self.currencySymbol = try container.decode(String.self, forKey: .currencySymbol)
+        self.settings = try container.decode(QuinnSettings.self, forKey: .settings)
+        self.appId = try container.decode(String.self, forKey: .appId)
+        self.pageType = try container.decodeIfPresent(String.self, forKey: .pageType)
+        self.pageId = try container.decodeIfPresent(String.self, forKey: .pageId)
+        self.pageHandle = try container.decodeIfPresent(String.self, forKey: .pageHandle)
+        self.overlayState = try container.decode(OverlayState.self, forKey: .overlayState)
+        self.overlayLoadStartTime = try container.decodeIfPresent(Double.self, forKey: .overlayLoadStartTime)
+        self.overlayLoadEndTime = try container.decodeIfPresent(Double.self, forKey: .overlayLoadEndTime)
+        self.overlayOpenTime = try container.decodeIfPresent(Double.self, forKey: .overlayOpenTime)
+        self.overlayDuration = try container.decodeIfPresent(Double.self, forKey: .overlayDuration)
+        self.overlayWidth = try container.decodeIfPresent(Double.self, forKey: .overlayWidth)
+        self.overlayHeight = try container.decodeIfPresent(Double.self, forKey: .overlayHeight)
+        self.disableGradient = try container.decodeIfPresent(Bool.self, forKey: .disableGradient)
+        self.videoResizeMode = try container.decodeIfPresent(VideoResizeMode.self, forKey: .videoResizeMode)
+        self.fontFamily = try container.decodeIfPresent(String.self, forKey: .fontFamily)
+        self.version = try container.decode(String.self, forKey: .version)
+        self.styles = try container.decodeIfPresent(QuinnStyles.self, forKey: .styles)
+    }
+    
+    init(
+        sft: String,
+        cdn: String,
+        shopDomain: String,
+        shopType: ShopType,
+        apiCache: [String: String],
+        functions: DefaultQuinnFunctions,
+        currencySymbol: String,
+        settings: QuinnSettings,
+        appId: String,
+        pageType: String?,
+        pageId: String?,
+        pageHandle: String?,
+        overlayState: OverlayState,
+        overlayLoadStartTime: Double?,
+        overlayLoadEndTime: Double?,
+        overlayOpenTime: Double?,
+        overlayDuration: Double?,
+        overlayWidth: Double?,
+        overlayHeight: Double?,
+        disableGradient: Bool?,
+        videoResizeMode: VideoResizeMode?,
+        fontFamily: String?,
+        version: String,
+        styles: QuinnStyles?
+    ) {
+        self.sft = sft
+        self.cdn = cdn
+        self.shopDomain = shopDomain
+        self.shopType = shopType
+        self.apiCache = apiCache
+        self.functions = functions
+        self.currencySymbol = currencySymbol
+        self.settings = settings
+        self.appId = appId
+        self.pageType = pageType
+        self.pageId = pageId
+        self.pageHandle = pageHandle
+        self.overlayState = overlayState
+        self.overlayLoadStartTime = overlayLoadStartTime
+        self.overlayLoadEndTime = overlayLoadEndTime
+        self.overlayOpenTime = overlayOpenTime
+        self.overlayDuration = overlayDuration
+        self.overlayWidth = overlayWidth
+        self.overlayHeight = overlayHeight
+        self.disableGradient = disableGradient
+        self.videoResizeMode = videoResizeMode
+        self.fontFamily = fontFamily
+        self.version = version
+        self.styles = styles
+    }
+    
+    func encode(to encoder: Encoder) throws {
+        var container = encoder.container(keyedBy: CodingKeys.self)
+        
+        try container.encode(sft, forKey: .sft)
+        try container.encode(cdn, forKey: .cdn)
+        try container.encode(shopDomain, forKey: .shopDomain)
+        try container.encode(shopType, forKey: .shopType)
+        try container.encode(apiCache, forKey: .apiCache)
+        try container.encode(currencySymbol, forKey: .currencySymbol)
+        try container.encode(settings, forKey: .settings)
+        try container.encode(appId, forKey: .appId)
+        try container.encodeIfPresent(pageType, forKey: .pageType)
+        try container.encodeIfPresent(pageId, forKey: .pageId)
+        try container.encodeIfPresent(pageHandle, forKey: .pageHandle)
+        try container.encode(overlayState, forKey: .overlayState)
+        try container.encodeIfPresent(overlayLoadStartTime, forKey: .overlayLoadStartTime)
+        try container.encodeIfPresent(overlayLoadEndTime, forKey: .overlayLoadEndTime)
+        try container.encodeIfPresent(overlayOpenTime, forKey: .overlayOpenTime)
+        try container.encodeIfPresent(overlayDuration, forKey: .overlayDuration)
+        try container.encodeIfPresent(overlayWidth, forKey: .overlayWidth)
+        try container.encodeIfPresent(overlayHeight, forKey: .overlayHeight)
+        try container.encodeIfPresent(disableGradient, forKey: .disableGradient)
+        try container.encodeIfPresent(videoResizeMode, forKey: .videoResizeMode)
+        try container.encodeIfPresent(fontFamily, forKey: .fontFamily)
+        try container.encode(version, forKey: .version)
+        try container.encodeIfPresent(styles, forKey: .styles)
     }
 }
 
