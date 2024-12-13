@@ -23,12 +23,11 @@ class GeneralConnector: BaseConnector {
         self.accessToken = accessToken
     }
     
-    func getPlaylistData(handle: String, paginatedHash: String? = nil) async throws -> PlaylistData {
-        let handleHash = try await getHandleHash(handle: handle, shopType: "GENERAL")
+    func getPlaylistData(playlistId: String) async throws -> PlaylistData {
         
-        let urlString = paginatedHash != nil
-        ? "https://assets.quinn.live/\(paginatedHash!)"
-        : "https://assets.quinn.live/\(shop)/\(handleHash).json"
+        //        let urlString = "https://assets.quinn.live/\(shop)/\(playlistId).json"
+        let urlString = "https://zany-calm-energy.glitch.me/data";
+        print(playlistId)
         
         guard let url = URL(string: urlString) else {
             throw APIError.invalidURL

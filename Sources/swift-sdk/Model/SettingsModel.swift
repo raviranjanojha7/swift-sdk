@@ -101,6 +101,60 @@ struct QuinnSettings: Codable {
         ],
         viewThresholdMiliseconds: 0
     )
+    
+    init() {
+           self = QuinnSettings.default
+       }
+       
+       init(
+           abControlGroupPercentage: String,
+           abEnabledForWidgets: [String],
+           abEnabledOnPages: [String],
+           abTesting: Bool,
+           abTestingId: String,
+           calcNetSpeed: Bool,
+           cartTracking: Bool,
+           enableGif: Bool?,
+           enableInterceptor: Bool,
+           showAbTestingAnalytics: Bool,
+           subscription: String,
+           setupCompleted: Bool,
+           onboarding: [String: String],
+           forcedDisabled: Bool,
+           cards: CardSettings,
+           floating: FloatingSettings,
+           general: GeneralSettings,
+           overlay: OverlaySettings,
+           events: [String],
+           customiser: CustomiserSettings,
+           story: StorySettings,
+           pallet: [String: String],
+           viewThresholdMiliseconds: Int
+       ) {
+           self.abControlGroupPercentage = abControlGroupPercentage
+           self.abEnabledForWidgets = abEnabledForWidgets
+           self.abEnabledOnPages = abEnabledOnPages
+           self.abTesting = abTesting
+           self.abTestingId = abTestingId
+           self.calcNetSpeed = calcNetSpeed
+           self.cartTracking = cartTracking
+           self.enableGif = enableGif
+           self.enableInterceptor = enableInterceptor
+           self.showAbTestingAnalytics = showAbTestingAnalytics
+           self.subscription = subscription
+           self.setupCompleted = setupCompleted
+           self.onboarding = onboarding
+           self.forcedDisabled = forcedDisabled
+           self.cards = cards
+           self.floating = floating
+           self.general = general
+           self.overlay = overlay
+           self.events = events
+           self.customiser = customiser
+           self.story = story
+           self.pallet = pallet
+           self.viewThresholdMiliseconds = viewThresholdMiliseconds
+       }
 }
 
 // Supporting Models
