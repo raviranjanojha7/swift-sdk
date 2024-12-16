@@ -8,55 +8,32 @@
 import SwiftUI
 
 public struct MainView: View {
-
-//    @StateObject private var viewModel = OverlayViewModel()
-//    @StateObject var playlistModel = PlaylistViewModel()
-//
-//     public init(viewModel: OverlayViewModel = OverlayViewModel()) {
-//        _viewModel = StateObject(wrappedValue: viewModel)
-//    }
-
+    @ObservedObject private var global = Global.shared
+    
     public var body: some View {
-
         NavigationStack {
             ScrollView(.vertical, showsIndicators: false) {
-//                ScrollView(.horizontal, showsIndicators: false) {
-//                    //showing bundles
-//                    HStack {
-//
-//                        //bundles
-//                        ForEach($viewModel.bundles) { $bundles in
-//                            //ProfleView
-//                            StoryView(bundles: $bundles)
-//                                .environmentObject(viewModel)
-//                        }
-//                    }
-//                    .padding(.leading)
-//
-//                }
-//                
-//                ScrollView(.horizontal, showsIndicators: false) {
-//                    HStack(spacing: 0) {
-//                        
-//                        
-//                        ForEach($viewModel.bundles) { $bundles in
-//                            //ProfleView
-//                            CardView(bundles: $bundles)
-//                                .environmentObject(viewModel)
-//                        }
-//
-//                    }
-//                }
+                VStack(spacing: 20) {
+                    // Story Section
+                    StoryView(
+                        playlistId: "your_story_playlist_id",
+                        pageHandle: "your_page_handle",
+                        layer: 1
+                    )
+                    
+                    // Card Section
+                    CardView(
+                        playlistId: "your_card_playlist_id",
+                        pageHandle: "your_page_handle",
+                        layer: 1
+                    )
+                }
+            }
+            // Overlay will be shown when overlayState is not nil
+            .overlay {
+                OverlayView()
             }
         }
-//        .task {
-//            print("hereeeeeee")
-//            playlistModel.getPlaylistData()
-//        }
-//        .overlay(
-//            OverlayView()
-//                .environmentObject(viewModel)
-//        )
     }
 }
 

@@ -9,42 +9,16 @@ import Foundation
 
 
 struct OverlayState: Codable {
-    let activeIndex: Int?
-    let playlist: PlaylistData?
-    let medias: [String: OverlayMedia]?
-    let media: OverlayMedia?
-    let group: PlaylistMediaGroup?
-    let groupMediaIndex: Int?
-    let product: MediaProduct?
-    let variant: Variant?
-    let templates: Templates?
-    let widgetType: WidgetType?
-    let isMuted: Bool?
-    let cart: ShopifyCart?
-    let quantity: Int?
-    let showCartTooltip: Bool?
-    let lastSwipedAt: Double?
-    let overlayOpenedAt: Double?
-    let mediaProducts: [String: [MediaProduct]]?
+    var activeIndex: Int?
+    var playlist: PlaylistData?
+    var widgetType: WidgetType?
+    var handle: String?
     
     static let `default` = OverlayState(
             activeIndex: nil,
             playlist: nil,
-            medias: [:],
-            media: nil,
-            group: nil,
-            groupMediaIndex: nil,
-            product: nil,
-            variant: nil,
-            templates: nil,
-            widgetType: .cards, 
-            isMuted: false,
-            cart: nil,
-            quantity: 0,
-            showCartTooltip: false,
-            lastSwipedAt: nil,
-            overlayOpenedAt: nil,
-            mediaProducts: [:]
+            widgetType: .cards,
+            handle: nil
         )
 }
 
@@ -114,10 +88,4 @@ struct OverlayMediaGroup: Codable, Identifiable {
     let title: String?
     let subtitle: String?
     let templates: Templates?
-}
-
-struct OverlayMediaItem: Codable {
-    let type: PlaylistMediaType
-    let group: OverlayMediaGroup?
-    let media: OverlayMedia?
 }

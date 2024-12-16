@@ -8,188 +8,161 @@
 import SwiftUI
 
 public struct OverlayCardView: View {
-
-//    @Binding var cardAndStories: CardAndStoryBundle
-//    @EnvironmentObject var viewModel: OverlayViewModel
-//
-//    //Timer and Changing Based on Timer
-//    @State var timer = Timer.publish(every: 0.1, on: .main, in: .common).autoconnect()
-//
-//    //Progress
-//    @State var timerProgress: CGFloat = .zero
-//
-//    // Add this to force view refresh when story changes
-//    @State private var currentStoryIndex: Int = 0
-//
-//    public init(cardAndStories: Binding<CardAndStoryBundle>) {
-//        self._cardAndStories = cardAndStories
-//    }
-
+    let mediaItem: PlaylistMediaItem
+    @ObservedObject var viewModel: OverlayViewModel
+    
     public var body: some View {
-//
-//        //for 3d Rotation
-//        GeometryReader { proxy in
+        GeometryReader { proxy in
             ZStack {
-//
-//                //Getting current Index
-//                //And updating data
-//                let index = min(Int(timerProgress), cardAndStories.medias.count - 1)
-//
-//                let overlayMedia = cardAndStories.medias[index]
-//                if overlayMedia.isVideo {
-//                    VideoPlayer(url: URL(string: overlayMedia.mediaURL))
-//                        .frame(width: proxy.size.width, height: proxy.size.height)
-//                        .clipShape(RoundedRectangle(cornerRadius: 15))
-//                        .id("video_\(index)") // Add unique ID to force view refresh
-//                } else {
-//                    AsyncImage(url: URL(string: overlayMedia.mediaURL)) { phase in
-//                        switch phase {
-//                        case .success(let image):
-//                            image
-//                                .resizable()
-//                                .aspectRatio(contentMode: .fill)
-//                        case .failure(_):
-//                            Image(systemName: "photo")
-//                                .resizable()
-//                        case .empty:
-//                            ProgressView()
-//                        @unknown default:
-//                            ProgressView()
-//                        }
-//                    }
-//                    .frame(width: proxy.size.width, height: proxy.size.height)
-//                    .clipShape(RoundedRectangle(cornerRadius: 15))
-//                }
-//            }
-//            .tabViewStyle(.page(indexDisplayMode: .never))
-//            .frame(maxWidth: .infinity, maxHeight: .infinity, alignment: .center)
-//            .background(.black)
-//            .ignoresSafeArea()
-//
-//            //tapping
-//            .overlay(
-//                HStack {
-//                    Rectangle()
-//                        .fill(.black.opacity(0.01))
-//                        .onTapGesture {
-//                            if (timerProgress - 1) < 0 {
-//                                //update to next
-//                                updateOverlay(forward: false)
-//                            } else {
-//                                timerProgress = CGFloat(Int(timerProgress - 1))
-//                            }
-//                        }
-//
-//                    Rectangle()
-//                        .fill(.black.opacity(0.01))
-//                        .onTapGesture {
-//                            if (timerProgress + 1) > CGFloat(cardAndStories.medias.count) {
-//                                //update to next
-//                                updateOverlay()
-//                            } else {
-//                                timerProgress = CGFloat(Int(timerProgress + 1))
-//                            }
-//                        }
-//                }
-//            )
-//            //Top Timer Capsule
-//            .overlay(
-//                OverlayTopIndicator(bundle: $cardAndStories, timerProgress: $timerProgress)
-//                    .frame(height: 1.4)
-//                    .padding(.horizontal)
-//                ,alignment: .top
-//            )
-//            .overlay(Button {
-//                viewModel.currentBundle = ""
-//                viewModel.showOverlay = false
-//                    } label: {
-//                        XDismissButton().padding(.top, 5)
-//                    }, alignment: .topTrailing
-//            )
-//
-//            //rotation
-//            .rotation3DEffect(
-//                getAngle(proxy: proxy),
-//                axis: (x: 0, y: 1, z: 0),
-//                anchor: proxy.frame(in: .global).minX > 0 ? .leading : .trailing,
-//                perspective: 2.5
-//            )
-//        }
-//
-//        //reseting timer
-//        .onAppear(perform: {
-//            timerProgress = 0
-//            currentStoryIndex = 0
-//        })
-//
-//        .onReceive(timer, perform: { _ in
-//            //updating timer
-//            if viewModel.currentBundle == cardAndStories.id {
-//                if timerProgress < CGFloat(cardAndStories.medias.count) - 1 {
-//                    timerProgress += 0.02
-//                    // Update currentStoryIndex when story changes
-//                    let newIndex = min(Int(timerProgress), cardAndStories.medias.count - 1)
-//                    if currentStoryIndex != newIndex {
-//                        currentStoryIndex = newIndex
-//                    }
-//                } else {
-//                    if timerProgress < CGFloat(cardAndStories.medias.count) {
-//                        timerProgress += 0.02
-//                    } else {
-//                        updateOverlay()
-//                    }
-//                }
+                // Render content based on media type
+                if mediaItem.type == .media {
+                    // Single media view
+                    if let media = mediaItem.media {
+                        singleMediaContent(media: media, proxy: proxy)
+                    }
+                } else if mediaItem.type == .group {
+                    // Group/Bundle view
+                    if let group = mediaItem.group {
+                        let currentMedia = group.medias[viewModel.groupMediaIndex]
+                        singleMediaContent(media: currentMedia, proxy: proxy)
+                    }
+                }
             }
-//        })
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .background(.black)
+            // Navigation overlay
+            .overlay(
+                HStack {
+                    // Left tap area
+                    Rectangle()
+                        .fill(.black.opacity(0.01))
+                        .onTapGesture {
+                            updateOverlay(forward: false)
+                        }
+                    
+                    // Right tap area
+                    Rectangle()
+                        .fill(.black.opacity(0.01))
+                        .onTapGesture {
+                            updateOverlay(forward: true)
+                        }
+                }
+            )
+            // Progress indicators for group/bundle
+            .overlay(
+                Group {
+                    if case .group = mediaItem.type,
+                       let group = mediaItem.group {
+                        // Show progress indicators for group items
+                        HStack(spacing: 4) {
+                            ForEach(0..<group.medias.count, id: \.self) { index in
+                                Rectangle()
+                                    .fill(index == viewModel.groupMediaIndex ? Color.white : Color.white.opacity(0.5))
+                                    .frame(height: 2)
+                            }
+                        }
+                        .padding()
+                    }
+                },
+                alignment: .top
+            )
+            // Close button
+            .overlay(
+                Button {
+                    viewModel.global.quinn.overlayState = nil
+                } label: {
+                    Image(systemName: "xmark")
+                        .foregroundColor(.white)
+                        .padding()
+                },
+                alignment: .topTrailing
+            )
+        }
     }
-
-    //updating on End
-//    private func updateOverlay(forward: Bool = true) {
-//        withAnimation(.easeInOut) {
-//            if forward {
-//                if let nextID = viewModel.nextBundleID(currentID: viewModel.currentBundle) {
-//                    // There's a next story, so update the current story to it.
-//                    viewModel.currentBundle = nextID
-//                    // Reset progress when moving to next story
-//                    timerProgress = 0
-//                    currentStoryIndex = 0
-//                } else {
-//                    // There's no next story, indicating this is the last one. Hide the story view.
-//                    viewModel.showOverlay = false
-//                }
-//            } else {
-//                if let prevID = viewModel.previousBundleID(currentID: viewModel.currentBundle) {
-//                    // There's a previous story, so update the current story to it.
-//                    viewModel.currentBundle = prevID
-//                    // Reset progress when moving to previous story
-//                    timerProgress = 0
-//                    currentStoryIndex = 0
-//                } else {
-//                    // Optionally, handle if you're at the first story and attempting to go back further,
-//                    // which might not change the visibility but could reset to a default view or perform another action.
-//                }
-//            }
-//        }
-//    }
-//
-//    private func getAngle(proxy: GeometryProxy) -> Angle {
-//        //converting offset into 45 deg
-//        let progress = proxy.frame(in: .global).minX / proxy.size.width
-//
-//        let rotationAngle: CGFloat = 45
-//        let degrees = rotationAngle * progress
-//        return Angle(degrees: Double(degrees))
-//    }
+    
+    @ViewBuilder
+    private func singleMediaContent(media: PlaylistMedia, proxy: GeometryProxy) -> some View {
+        if let videoUrl = media.urls?.short {
+            VideoPlayer(url: URL(string: videoUrl))
+                .aspectRatio(9/16, contentMode: .fill)
+                .frame(width: proxy.size.width, height: proxy.size.height)
+                .clipShape(RoundedRectangle(cornerRadius: 12))
+        } else if let posterUrl = media.urls?.poster {
+            AsyncImage(url: URL(string: posterUrl)) { phase in
+                switch phase {
+                case .success(let image):
+                    image
+                        .resizable()
+                        .aspectRatio(9/16, contentMode: .fill)
+                        .frame(width: proxy.size.width, height: proxy.size.height)
+                case .failure(_):
+                    Image(systemName: "photo")
+                        .resizable()
+                        .aspectRatio(contentMode: .fit)
+                        .foregroundColor(.gray)
+                case .empty:
+                    ProgressView()
+                @unknown default:
+                    ProgressView()
+                }
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 12))
+        }
+    }
+    
+    private func updateOverlay(forward: Bool = true) {
+        if mediaItem.type == .group,
+           let group = mediaItem.group {
+            // Handle navigation within a group
+            if forward {
+                if viewModel.groupMediaIndex < group.medias.count - 1 {
+                    viewModel.groupMediaIndex += 1
+                } else {
+                    // Move to next item in playlist
+                    moveToNextItem()
+                }
+            } else {
+                if viewModel.groupMediaIndex > 0 {
+                    viewModel.groupMediaIndex -= 1
+                } else {
+                    // Move to previous item in playlist
+                    moveToPreviousItem()
+                }
+            }
+        } else {
+            // Handle navigation for single media
+            if forward {
+                moveToNextItem()
+            } else {
+                moveToPreviousItem()
+            }
+        }
+    }
+    
+    private func moveToNextItem() {
+        if let playlist = viewModel.playlist,
+           viewModel.activeIndex < playlist.media.count - 1 {
+            viewModel.activeIndex += 1
+            viewModel.groupMediaIndex = 0 // Reset group index when moving to next item
+        } else {
+            // Close overlay if we're at the end
+            viewModel.global.quinn.overlayState = nil
+        }
+    }
+    
+    private func moveToPreviousItem() {
+        if viewModel.activeIndex > 0 {
+            viewModel.activeIndex -= 1
+            // When moving to previous item, set group index to last item if it's a group
+            if let previousItem = viewModel.playlist?.media[viewModel.activeIndex],
+               previousItem.type == .group,
+               let group = previousItem.group {
+                viewModel.groupMediaIndex = group.medias.count - 1
+            } else {
+                viewModel.groupMediaIndex = 0
+            }
+        }
+    }
 }
 
 
-
-//#Preview {
-//    OverlayCardView(cardAndStories:  .constant(CardAndStoryBundle(
-//        profileName: "Canada",
-//        medias: [
-//            CardAndStory(mediaURL: "https://www.boat-lifestyle.com/cdn/shop/files/quinn_rc2jan2cq4z130ey73re7bau.mp4", isVideo: true),
-//            CardAndStory(mediaURL: "https://www.boat-lifestyle.com/cdn/shop/files/quinn_zntjxmugklrk3vhl1fjxqr5g.mp4", isVideo: false),
-//        ]
-//    ))).environmentObject(OverlayViewModel())
-//}

@@ -64,12 +64,12 @@ class OverlayViewModel: ObservableObject {
     @Published var widgetType: WidgetType = WidgetType.cards
     @Published var playlistId = ""
     @Published var playlist: PlaylistData?
-    @Published var mediaData: [String: OverlayMediaItem] = [:]
+    @Published var mediaData: [String: PlaylistMediaItem] = [:]
     @Published var selectedProduct: MediaProduct?
     @Published var selectedVariant: Variant?
     @Published var handle = ""
     @Published var isOverlayMuted = true
-    @Published var scrollDirection: ScrollDirection = .vertical
+    @Published var scrollDirection: ScrollDirection = .horizontal
     
     // MARK: - Types
     enum ScrollDirection { 

@@ -40,7 +40,7 @@ struct Quinn: Codable, Identifiable {
     let pageType: String?
     let pageId: String?
     let pageHandle: String?
-    let overlayState: OverlayState
+    var overlayState: OverlayState?
     let overlayLoadStartTime: Double?
     let overlayLoadEndTime: Double?
     let overlayOpenTime: Double?
@@ -90,7 +90,7 @@ struct Quinn: Codable, Identifiable {
         self.pageType = try container.decodeIfPresent(String.self, forKey: .pageType)
         self.pageId = try container.decodeIfPresent(String.self, forKey: .pageId)
         self.pageHandle = try container.decodeIfPresent(String.self, forKey: .pageHandle)
-        self.overlayState = try container.decode(OverlayState.self, forKey: .overlayState)
+        self.overlayState = try container.decodeIfPresent(OverlayState.self, forKey: .overlayState)
         self.overlayLoadStartTime = try container.decodeIfPresent(Double.self, forKey: .overlayLoadStartTime)
         self.overlayLoadEndTime = try container.decodeIfPresent(Double.self, forKey: .overlayLoadEndTime)
         self.overlayOpenTime = try container.decodeIfPresent(Double.self, forKey: .overlayOpenTime)
@@ -117,7 +117,7 @@ struct Quinn: Codable, Identifiable {
         pageType: String?,
         pageId: String?,
         pageHandle: String?,
-        overlayState: OverlayState,
+        overlayState: OverlayState?,
         overlayLoadStartTime: Double?,
         overlayLoadEndTime: Double?,
         overlayOpenTime: Double?,
@@ -170,7 +170,7 @@ struct Quinn: Codable, Identifiable {
         try container.encodeIfPresent(pageType, forKey: .pageType)
         try container.encodeIfPresent(pageId, forKey: .pageId)
         try container.encodeIfPresent(pageHandle, forKey: .pageHandle)
-        try container.encode(overlayState, forKey: .overlayState)
+        try container.encodeIfPresent(overlayState, forKey: .overlayState)
         try container.encodeIfPresent(overlayLoadStartTime, forKey: .overlayLoadStartTime)
         try container.encodeIfPresent(overlayLoadEndTime, forKey: .overlayLoadEndTime)
         try container.encodeIfPresent(overlayOpenTime, forKey: .overlayOpenTime)

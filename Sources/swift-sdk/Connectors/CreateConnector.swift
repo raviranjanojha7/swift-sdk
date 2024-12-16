@@ -33,7 +33,6 @@ func getConnector() throws -> BaseConnector {
     )
     
     do {
-        print(currentGlobalState.quinn.shopType)
         let connector = try createConnector(payload: connectorPayload)
         return connector;
     } catch {

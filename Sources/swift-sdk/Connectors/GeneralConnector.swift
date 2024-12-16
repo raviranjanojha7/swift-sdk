@@ -27,7 +27,6 @@ class GeneralConnector: BaseConnector {
         
         //        let urlString = "https://assets.quinn.live/\(shop)/\(playlistId).json"
         let urlString = "https://zany-calm-energy.glitch.me/data";
-        print(playlistId)
         
         guard let url = URL(string: urlString) else {
             throw APIError.invalidURL

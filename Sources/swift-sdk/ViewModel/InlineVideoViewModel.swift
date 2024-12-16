@@ -15,7 +15,7 @@ class InlineViewModel: ObservableObject {
     @Published var playlist: PlaylistData?
     @Published var widgetType: WidgetType = WidgetType.imax
     @Published var handle = ""
-    @Published var mediaData: [String: OverlayMediaItem] = [:]
+    @Published var mediaData: [String: PlaylistMediaItem] = [:]
     
     // MARK: - Initialization
     init() {
@@ -37,7 +37,7 @@ extension InlineViewModel {
         playlist = newPlaylist
     }
     
-    func updateMediaData(_ newMediaData: [String: OverlayMediaItem]) {
+    func updateMediaData(_ newMediaData: [String: PlaylistMediaItem]) {
         mediaData = newMediaData
     }
     

@@ -12,7 +12,7 @@ public struct StoryView: View {
     let playlistId: String
     let pageHandle: String
     let layer: Int
-    let global = Global.shared
+    @ObservedObject private var global = Global.shared
     
     public init(playlistId: String, pageHandle: String, layer: Int) {
         self.playlistId = playlistId
@@ -26,33 +26,7 @@ public struct StoryView: View {
             if viewModel.isLoading {
                 ProgressView()
             } else {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    LazyHStack(spacing: 20) {
-                        ForEach(viewModel.playlist?.media ?? [], id: \.media?.id) { mediaItem in
-                            Button(action: {
-                                withAnimation {
-                                    // Your commented overlay setup code
-                                }
-                            }) {
-                                if mediaItem.type == .media {
-                                    StoryItemView(mediaItem: mediaItem, viewModel: viewModel)
-                                } else if mediaItem.type == .group {
-                                    // For groups, render each media in the group
-                                    ForEach(mediaItem.group?.medias ?? [], id: \.id) { groupMedia in
-                                        StoryItemView(
-                                            mediaItem: PlaylistMediaItem(
-                                                type: .media,
-                                                group: nil,
-                                                media: groupMedia
-                                            ),
-                                            viewModel: viewModel
-                                        )
-                                    }
-                                }
-                            }
-                        }
-                    }
-                }
+                storyScrollView
             }
         }
         .task {
@@ -60,19 +34,57 @@ public struct StoryView: View {
         }
     }
     
-   private func loadData() async {
-        print("Loading data....")
+    private var storyScrollView: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            LazyHStack(spacing: 20) {
+                ForEach(viewModel.playlist?.media ?? [], id: \.media?.id) { mediaItem in
+                    storyButton(for: mediaItem)
+                }
+            }
+        }
+    }
+    
+    private func storyButton(for mediaItem: PlaylistMediaItem) -> some View {
+        Button(action: {
+            withAnimation {
+            }
+        }) {
+            storyContent(for: mediaItem)
+        }
+    }
+    
+    private func storyContent(for mediaItem: PlaylistMediaItem) -> some View {
+        Group {
+            if mediaItem.type == .media {
+                StoryItemView(mediaItem: mediaItem, viewModel: viewModel)
+            } else if mediaItem.type == .group {
+                groupContent(for: mediaItem)
+            }
+        }
+    }
+    
+    private func groupContent(for mediaItem: PlaylistMediaItem) -> some View {
+        ForEach(mediaItem.group?.medias ?? [], id: \.id) { groupMedia in
+            StoryItemView(
+                mediaItem: PlaylistMediaItem(
+                    type: .media,
+                    group: nil,
+                    media: groupMedia
+                ),
+                viewModel: viewModel
+            )
+        }
+    }
+    
+    private func loadData() async {
         viewModel.isLoading = true
         defer { viewModel.isLoading = false }
         
         do {
             let connector = try getConnector()
             Task {
-                print("Before getPlaylistData call")
                 let playlist = try await connector.getPlaylistData(playlistId: playlistId)
-                print("After getPlaylistData call")
                 viewModel.updatePlaylist(playlist)
-                print("After updating playlist")
             }
         } catch {
             print("Error loading playlist: \(error)")
@@ -80,17 +92,27 @@ public struct StoryView: View {
     }
 }
 
+
+
+
 // Keep the existing StoryItemView implementation unchanged
 private struct StoryItemView: View {
     let mediaItem: PlaylistMediaItem
     @ObservedObject var viewModel: WidgetViewModel
+    @ObservedObject private var global = Global.shared
+    
     
     var body: some View {
         Button {
             print("Profile View Tapped - Debug")
             withAnimation {
-//                viewModel.currentMedia = mediaItem
-//                viewModel.showOverlay = true
+                let newOverlayState = OverlayState(
+                    activeIndex: 0,
+                    playlist: viewModel.playlist,
+                    widgetType: .cards,  // or .story depending on the view
+                    handle: ""
+                )
+                global.quinn.overlayState = newOverlayState
             }
         } label: {
             ZStack {

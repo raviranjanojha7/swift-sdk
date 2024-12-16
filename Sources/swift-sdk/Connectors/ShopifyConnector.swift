@@ -18,24 +18,17 @@ class ShopifyConnector: BaseConnector {
     }
     
     func getPlaylistData(playlistId: String) async throws -> PlaylistData {
-        print("Starting getPlaylistData in ShopifyConnector")
         
         let urlString = "https://zany-calm-energy.glitch.me/data"
-        print("URL being called: \(urlString)")
         
         guard let url = URL(string: urlString) else {
-            print("Invalid URL")
             throw APIError.invalidURL
         }
         
-        print("Before network call")
         do {
             let response = try await NetworkManager.shared.fetchData(from: url, as: PlaylistResponse.self)
-            print("Network call completed successfully")
-            print("Response data: \(response)")
             
             guard let playlistObj = try? JSONDecoder().decode(PlaylistData.self, from: Data(response.playlist.utf8)) else {
-                print("Failed to decode playlist")
                 throw APIError.invalidData
             }
             
@@ -45,7 +38,6 @@ class ShopifyConnector: BaseConnector {
                 settingsObj = QuinnSettings() 
             } else {
                 guard let decoded = try? JSONDecoder().decode(QuinnSettings.self, from: Data(response.settings.utf8)) else {
-                    print("Failed to decode settings")
                     throw APIError.invalidData
                 }
                 settingsObj = decoded
@@ -125,7 +117,6 @@ class ShopifyConnector: BaseConnector {
                 }
             }
             
-            print("Transformation completed")
             // Create new PlaylistData with all transformed components
             return PlaylistData(
                 id: playlistObj.id,

@@ -13,7 +13,7 @@ public struct CardView: View {
     let playlistId: String
     let pageHandle: String
     let layer: Int
-    let global = Global.shared
+    @ObservedObject private var global = Global.shared
     
     public init(playlistId: String, pageHandle: String, layer: Int) {
         self.playlistId = playlistId
@@ -27,36 +27,7 @@ public struct CardView: View {
             if viewModel.isLoading {
                 ProgressView()
             } else {
-                ScrollView(.horizontal, showsIndicators: false) {
-                    LazyHStack(spacing: 10) {
-                        ForEach(viewModel.playlist?.media ?? [], id: \.media?.id) { mediaItem in
-                            Button(action: {
-                                withAnimation {
-                                    // Your commented overlay setup code
-                                }
-                            }) {
-                                if mediaItem.type == .media {
-                                    CardItemView(mediaItem: mediaItem, viewModel: viewModel)
-                                        .frame(width: 151, height: 271)
-                                } else if mediaItem.type == .group {
-                                    // For groups, render each media in the group
-                                    ForEach(mediaItem.group?.medias ?? [], id: \.id) { groupMedia in
-                                        CardItemView(
-                                            mediaItem: PlaylistMediaItem(
-                                                type: .media,
-                                                group: nil,
-                                                media: groupMedia
-                                            ),
-                                            viewModel: viewModel
-                                        )
-                                        .frame(width: 151, height: 271)
-                                    }
-                                }
-                            }
-                        }
-                    }
-                    .padding(.horizontal)
-                }
+                cardScrollView
             }
         }
         .task {
@@ -64,19 +35,72 @@ public struct CardView: View {
         }
     }
     
+    private var cardScrollView: some View {
+        ScrollView(.horizontal, showsIndicators: false) {
+            LazyHStack(spacing: 10) {
+                ForEach(viewModel.playlist?.media ?? [], id: \.media?.id) { mediaItem in
+                    cardButton(for: mediaItem)
+                }
+            }
+            .padding(.horizontal)
+        }
+    }
+    
+    private func cardButton(for mediaItem: PlaylistMediaItem) -> some View {
+        Button(action: {
+            handleCardTap()
+        }) {
+            cardContent(for: mediaItem)
+        }
+    }
+    
+    private func cardContent(for mediaItem: PlaylistMediaItem) -> some View {
+        Group {
+            if mediaItem.type == .media {
+                CardItemView(mediaItem: mediaItem, viewModel: viewModel)
+                    .frame(width: 151, height: 271)
+            } else if mediaItem.type == .group {
+                groupContent(for: mediaItem)
+            }
+        }
+    }
+    
+    private func groupContent(for mediaItem: PlaylistMediaItem) -> some View {
+        ForEach(mediaItem.group?.medias ?? [], id: \.id) { groupMedia in 
+            CardItemView(
+                mediaItem: PlaylistMediaItem(
+                    type: .media,
+                    group: nil,
+                    media: groupMedia
+                ),
+                viewModel: viewModel
+            )
+            .frame(width: 151, height: 271)
+        }
+    }
+    
+    private func handleCardTap() {
+        withAnimation {
+            print("Card clicked")
+            let newOverlayState = OverlayState(
+                activeIndex: 0,
+                playlist: viewModel.playlist,
+                widgetType: .cards,
+                handle: ""
+            )
+            global.quinn.overlayState = newOverlayState
+        }
+    }
+    
     private func loadData() async {
-        print("Loading data....")
         viewModel.isLoading = true
         defer { viewModel.isLoading = false }
         
         do {
             let connector = try getConnector()
             Task {
-                print("Before getPlaylistData call")
                 let playlist = try await connector.getPlaylistData(playlistId: playlistId)
-                print("After getPlaylistData call")
                 viewModel.updatePlaylist(playlist)
-                print("After updating playlist")
             }
         } catch {
             print("Error loading playlist: \(error)")
@@ -132,5 +156,5 @@ private struct CardItemView: View {
 
 #Preview {
     CardView(playlistId: "playlistid", pageHandle: "pagehandle", layer: 1)
-    .environmentObject(OverlayViewModel())
+        .environmentObject(OverlayViewModel())
 }

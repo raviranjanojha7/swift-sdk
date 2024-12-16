@@ -14,11 +14,8 @@ class WidgetViewModel: ObservableObject {
     @Published var widgetType: WidgetType = WidgetType.cards
     @Published var playlistId: String?
     @Published var playlist: PlaylistData?
-    @Published var mediaData: [String: OverlayMediaItem] = [:]
+    @Published var mediaData: PlaylistMediaItem?
     @Published var handle = ""
-    @Published var isOverlayOpen = false
-    
-  
 }
 
 
@@ -27,7 +24,7 @@ extension WidgetViewModel {
         playlist = newPlaylist
     }
     
-    func updateMediaData(_ newMediaData: [String: OverlayMediaItem]) {
+    func updateMediaData(_ newMediaData: PlaylistMediaItem) {
         mediaData = newMediaData
     }
 }
