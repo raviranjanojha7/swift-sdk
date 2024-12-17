@@ -8,46 +8,43 @@
 import SwiftUI
 
 struct OverlayTopIndicator: View {
-
-    @Binding var bundle: CardAndStoryBundle
-    @Binding var timerProgress: CGFloat
-
+    let mediaItem: PlaylistMediaItem
+    @ObservedObject var viewModel: OverlayViewModel
+    @State var timerProgress: CGFloat = 0
+    
     var body: some View {
         HStack(spacing: 5) {
-            ForEach(bundle.medias.indices, id: \.self) { index in
-                GeometryReader { geometry in
-                    let width = geometry.size.width
-
-                    //getting progress by eliminating current index with progress
-                    //remaining will be at 0 when previously is loading.
-
-                    //for perfect timer
-                    let progress = timerProgress - CGFloat(index)
-                    let perfectProgress = min(max(progress, 0), 1)
-
-                    Capsule()
-                        .fill(.gray.opacity(0.5))
-                        .frame(height: 3)
-
-                        .overlay(
-                            Capsule()
-                                .fill(.white)
-                                .frame(width: width * perfectProgress, height: 3)
-                                .animation(.interactiveSpring(duration: 0.1), value: perfectProgress)
-                            , alignment: .leading
-                        )
+            if mediaItem.type == .media {
+                // Single progress bar for media type
+                progressBar(progress: timerProgress)
+            } else if mediaItem.type == .group, let group = mediaItem.group {
+                // Multiple progress bars for group type
+                ForEach(0..<group.medias.count, id: \.self) { index in
+                    progressBar(progress: index <= viewModel.groupMediaIndex ? 1 : 0)
                 }
-
             }
+        }
+        .padding(.horizontal)
+        .frame(height: 2)
+    }
+    
+    private func progressBar(progress: CGFloat) -> some View {
+        GeometryReader { geometry in
+            let width = geometry.size.width
+            
+            Capsule()
+                .fill(.gray.opacity(0.5))
+                .frame(height: 2)
+                .overlay(
+                    Capsule()
+                        .fill(.white)
+                        .frame(width: width * progress, height: 2)
+                        .animation(.interactiveSpring(duration: 0.1), value: progress),
+                    alignment: .leading
+                )
         }
     }
 }
 
 
 
-#Preview {
-    OverlayTopIndicator(bundle: .constant(CardAndStoryBundle(profileName: "Canada", medias: [
-        CardAndStory(mediaURL: "https://www.boat-lifestyle.com/cdn/shop/files/quinn_zntjxmugklrk3vhl1fjxqr5g.mp4", isVideo: true),
-        CardAndStory(mediaURL: "https://www.boat-lifestyle.com/cdn/shop/files/quinn_zntjxmugklrk3vhl1fjxqr5g.mp4", isVideo: true),
-    ])), timerProgress: .constant(1.0))
-}

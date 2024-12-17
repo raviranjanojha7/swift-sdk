@@ -19,54 +19,55 @@ public struct OverlayView: View {
     }
     
     public var body: some View {
-        ZStack { 
-            if let overlayState = global.quinn.overlayState,
-               let playlist = overlayState.playlist {
-                TabView(selection: $viewModel.activeIndex) {
-                    ForEach(Array(playlist.media.enumerated()), id: \.element.media?.id) { index, mediaItem in
-                        OverlayCardView(
-                            mediaItem: mediaItem,
-                            viewModel: viewModel
-                        )
-                        .tag(index)
-                    }
+        if let overlayState = global.quinn.overlayState,
+           let playlist = overlayState.playlist {
+            ZStack {
+                Color.black
+                    .edgesIgnoringSafeArea(.all)
+                
+                LazyTabView(
+                    count: playlist.media.count,
+                    selection: $viewModel.activeIndex
+                ) { index in
+                    OverlayCardView(
+                        mediaItem: playlist.media[index],
+                        viewModel: viewModel
+                    )
                 }
-                .tabViewStyle(.page(indexDisplayMode: .never))
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
-                .background(.black)
-                .opacity(fade ? 0.3 : 1)
-                .offset(y: offset.height)
-                .simultaneousGesture(
-                    DragGesture()
-                        .onChanged { gesture in
-                            guard gesture.translation.height > .zero else { return }
-                            if gesture.translation.height > 20 {
-                                withAnimation {
-                                    offset = gesture.translation
-                                    fade = true
-                                }
+            }
+            .opacity(fade ? 0.3 : 1)
+            .offset(y: offset.height)
+            .gesture(
+                DragGesture()
+                    .onChanged { gesture in
+                        if gesture.translation.height > 0 {
+                            withAnimation(.interactiveSpring()) {
+                                offset = gesture.translation
+                                fade = true
                             }
                         }
-                        .onEnded { gesture in
+                    }
+                    .onEnded { gesture in
+                        withAnimation(.interactiveSpring()) {
                             if gesture.translation.height > 100 {
-                                withAnimation {
-                                    global.quinn.overlayState = nil // Close overlay
-                                }
-                            }
-                            withAnimation {
+                                global.quinn.overlayState = nil
+                            } else {
                                 offset = .zero
                                 fade = false
                             }
                         }
-                )
-                .onAppear {
-                    // Copy data from global state to viewModel
-                    viewModel.playlist = overlayState.playlist
-                    viewModel.activeIndex = overlayState.activeIndex ?? 0
-                    viewModel.widgetType = overlayState.widgetType ?? .story
-                    viewModel.handle = overlayState.handle ?? ""
-                }
+                    }
+            )
+            .onAppear {
+                print(overlayState.activeIndex)
+                viewModel.playlist = overlayState.playlist
+                viewModel.activeIndex = overlayState.activeIndex ?? 0
+                viewModel.widgetType = overlayState.widgetType ?? .story
+                viewModel.handle = overlayState.handle ?? ""
             }
+            .transition(.opacity)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
+            .edgesIgnoringSafeArea(.all)
         }
     }
 }

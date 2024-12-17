@@ -13,30 +13,26 @@ public struct OverlayCardView: View {
     
     public var body: some View {
         GeometryReader { proxy in
-            ZStack {
-                // Render content based on media type
+            ZStack(alignment: .top) {
+                // Content
                 if mediaItem.type == .media {
-                    // Single media view
                     if let media = mediaItem.media {
                         singleMediaContent(media: media, proxy: proxy)
                     }
                 } else if mediaItem.type == .group {
-                    // Group/Bundle view
                     if let group = mediaItem.group {
                         let currentMedia = group.medias[viewModel.groupMediaIndex]
                         singleMediaContent(media: currentMedia, proxy: proxy)
                     }
                 }
-            }
-            .frame(maxWidth: .infinity, maxHeight: .infinity)
-            .background(.black)
-            // Navigation overlay
-            .overlay(
+                
+                // Navigation overlay (behind other overlays)
                 HStack {
                     // Left tap area
                     Rectangle()
                         .fill(.black.opacity(0.01))
                         .onTapGesture {
+                            print("left tap gesture")
                             updateOverlay(forward: false)
                         }
                     
@@ -44,56 +40,54 @@ public struct OverlayCardView: View {
                     Rectangle()
                         .fill(.black.opacity(0.01))
                         .onTapGesture {
+                            print("right tap gesture")
                             updateOverlay(forward: true)
                         }
                 }
-            )
-            // Progress indicators for group/bundle
-            .overlay(
-                Group {
-                    if case .group = mediaItem.type,
-                       let group = mediaItem.group {
-                        // Show progress indicators for group items
-                        HStack(spacing: 4) {
-                            ForEach(0..<group.medias.count, id: \.self) { index in
-                                Rectangle()
-                                    .fill(index == viewModel.groupMediaIndex ? Color.white : Color.white.opacity(0.5))
-                                    .frame(height: 2)
-                            }
+                
+                // Top overlay elements in VStack (on top)
+                VStack(spacing: 0) {
+                    // Progress indicators
+                    OverlayTopIndicator(
+                        mediaItem: mediaItem,
+                        viewModel: viewModel
+                    )
+                    .padding(.top, 12)
+                    
+                    // Close button
+                    HStack {
+                        Spacer()
+                        Button {
+                            print("close button tapped")
+                            viewModel.global.quinn.overlayState = nil
+                        } label: {
+                            XDismissButton()
                         }
-                        .padding()
                     }
-                },
-                alignment: .top
-            )
-            // Close button
-            .overlay(
-                Button {
-                    viewModel.global.quinn.overlayState = nil
-                } label: {
-                    Image(systemName: "xmark")
-                        .foregroundColor(.white)
-                        .padding()
-                },
-                alignment: .topTrailing
-            )
+                    .padding(.top, 16)
+                    
+                    Spacer()
+                }
+            }
+            .frame(width: proxy.size.width, height: proxy.size.height)
+            .background(.black)
         }
+        .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
     @ViewBuilder
     private func singleMediaContent(media: PlaylistMedia, proxy: GeometryProxy) -> some View {
         if let videoUrl = media.urls?.short {
             VideoPlayer(url: URL(string: videoUrl))
-                .aspectRatio(9/16, contentMode: .fill)
+                .aspectRatio(9/16, contentMode: .fit)
                 .frame(width: proxy.size.width, height: proxy.size.height)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
         } else if let posterUrl = media.urls?.poster {
             AsyncImage(url: URL(string: posterUrl)) { phase in
                 switch phase {
                 case .success(let image):
                     image
                         .resizable()
-                        .aspectRatio(9/16, contentMode: .fill)
+                        .aspectRatio(9/16, contentMode: .fit)
                         .frame(width: proxy.size.width, height: proxy.size.height)
                 case .failure(_):
                     Image(systemName: "photo")
@@ -106,7 +100,6 @@ public struct OverlayCardView: View {
                     ProgressView()
                 }
             }
-            .clipShape(RoundedRectangle(cornerRadius: 12))
         }
     }
     

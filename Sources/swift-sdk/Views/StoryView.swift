@@ -37,43 +37,38 @@ public struct StoryView: View {
     private var storyScrollView: some View {
         ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(spacing: 20) {
-                ForEach(viewModel.playlist?.media ?? [], id: \.media?.id) { mediaItem in
-                    storyButton(for: mediaItem)
+                if let media = viewModel.playlist?.media {
+                    ForEach(Array(media.enumerated()), id: \.element) { index, mediaItem in
+                        storyContent(for: mediaItem, mediaIndex: index)
+                            .id("\(mediaItem.media?.id ?? "")-\(index)")
+                    }
                 }
             }
+            .padding(.horizontal)
         }
     }
     
-    private func storyButton(for mediaItem: PlaylistMediaItem) -> some View {
-        Button(action: {
-            withAnimation {
-            }
-        }) {
-            storyContent(for: mediaItem)
-        }
-    }
     
-    private func storyContent(for mediaItem: PlaylistMediaItem) -> some View {
+    private func storyContent(for mediaItem: PlaylistMediaItem, mediaIndex: Int) -> some View {
         Group {
             if mediaItem.type == .media {
-                StoryItemView(mediaItem: mediaItem, viewModel: viewModel)
+                StoryItemView(mediaItem: mediaItem, mediaIndex: mediaIndex , viewModel: viewModel)
             } else if mediaItem.type == .group {
-                groupContent(for: mediaItem)
+                groupContent(for: mediaItem, mediaIndex: mediaIndex)
             }
         }
     }
     
-    private func groupContent(for mediaItem: PlaylistMediaItem) -> some View {
-        ForEach(mediaItem.group?.medias ?? [], id: \.id) { groupMedia in
-            StoryItemView(
-                mediaItem: PlaylistMediaItem(
-                    type: .media,
-                    group: nil,
-                    media: groupMedia
-                ),
-                viewModel: viewModel
-            )
-        }
+    private func groupContent(for mediaItem: PlaylistMediaItem, mediaIndex: Int) -> some View {
+        StoryItemView(
+            mediaItem: PlaylistMediaItem(
+                type: .media,
+                group: nil,
+                media: mediaItem.group?.medias[0]
+            ),
+            mediaIndex: mediaIndex,
+            viewModel: viewModel
+        )
     }
     
     private func loadData() async {
@@ -98,18 +93,19 @@ public struct StoryView: View {
 // Keep the existing StoryItemView implementation unchanged
 private struct StoryItemView: View {
     let mediaItem: PlaylistMediaItem
+    let mediaIndex: Int;
     @ObservedObject var viewModel: WidgetViewModel
     @ObservedObject private var global = Global.shared
     
     
     var body: some View {
         Button {
-            print("Profile View Tapped - Debug")
+            print("Profile View Tapped - Debug", mediaIndex)
             withAnimation {
                 let newOverlayState = OverlayState(
-                    activeIndex: 0,
+                    activeIndex: mediaIndex,
                     playlist: viewModel.playlist,
-                    widgetType: .cards,  // or .story depending on the view
+                    widgetType: .story,  
                     handle: ""
                 )
                 global.quinn.overlayState = newOverlayState
@@ -118,7 +114,7 @@ private struct StoryItemView: View {
             ZStack {
                 if let media = mediaItem.media {
                     if let storyUrl = media.urls?.story {
-                        if media.files.contains(where: { $0.variant == .story && $0.mediaid.hasSuffix(".mp4") }) {
+                        if media.files.contains(where: { $0.variant == .story && storyUrl.hasSuffix(".mp4") }) {
                             VideoPlayer(url: URL(string: storyUrl))
                                 .aspectRatio(contentMode: .fill)
                                 .allowsHitTesting(false)
@@ -164,3 +160,5 @@ private struct StoryItemView: View {
     StoryView(playlistId: "123", pageHandle: "456", layer: 7)
         .environmentObject(OverlayViewModel())
 }
+
+

@@ -19,7 +19,7 @@ class ShopifyConnector: BaseConnector {
     
     func getPlaylistData(playlistId: String) async throws -> PlaylistData {
         
-        let urlString = "https://zany-calm-energy.glitch.me/data"
+        let urlString = "https://zany-calm-energy.glitch.me/data-grouped"
         
         guard let url = URL(string: urlString) else {
             throw APIError.invalidURL
@@ -27,11 +27,11 @@ class ShopifyConnector: BaseConnector {
         
         do {
             let response = try await NetworkManager.shared.fetchData(from: url, as: PlaylistResponse.self)
-            
+                    
             guard let playlistObj = try? JSONDecoder().decode(PlaylistData.self, from: Data(response.playlist.utf8)) else {
                 throw APIError.invalidData
             }
-            
+                        
             // Handle empty settings case
             let settingsObj: QuinnSettings
             if response.settings == "{}" {

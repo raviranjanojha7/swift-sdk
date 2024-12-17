@@ -37,18 +37,21 @@ public struct CardView: View {
     
     private var cardScrollView: some View {
         ScrollView(.horizontal, showsIndicators: false) {
-            LazyHStack(spacing: 10) {
-                ForEach(viewModel.playlist?.media ?? [], id: \.media?.id) { mediaItem in
-                    cardButton(for: mediaItem)
+            LazyHStack(spacing: 20) {
+                if let media = viewModel.playlist?.media {
+                    ForEach(Array(media.enumerated()), id: \.element) { index, mediaItem in
+                        cardButton(for: mediaItem, mediaIndex: index)
+                            .id("\(mediaItem.media?.id ?? "")-\(index)")
+                    }
                 }
             }
             .padding(.horizontal)
         }
     }
     
-    private func cardButton(for mediaItem: PlaylistMediaItem) -> some View {
+    private func cardButton(for mediaItem: PlaylistMediaItem, mediaIndex: Int) -> some View {
         Button(action: {
-            handleCardTap()
+            handleCardTap(index: mediaIndex)
         }) {
             cardContent(for: mediaItem)
         }
@@ -66,24 +69,22 @@ public struct CardView: View {
     }
     
     private func groupContent(for mediaItem: PlaylistMediaItem) -> some View {
-        ForEach(mediaItem.group?.medias ?? [], id: \.id) { groupMedia in 
-            CardItemView(
-                mediaItem: PlaylistMediaItem(
-                    type: .media,
-                    group: nil,
-                    media: groupMedia
-                ),
-                viewModel: viewModel
-            )
-            .frame(width: 151, height: 271)
-        }
+        CardItemView(
+            mediaItem: PlaylistMediaItem(
+                type: .media,
+                group: nil,
+                media: mediaItem.group?.medias[0]
+            ),
+            viewModel: viewModel
+        )
+        .frame(width: 151, height: 271)
     }
     
-    private func handleCardTap() {
+    private func handleCardTap(index: Int) {
         withAnimation {
             print("Card clicked")
             let newOverlayState = OverlayState(
-                activeIndex: 0,
+                activeIndex: index,
                 playlist: viewModel.playlist,
                 widgetType: .cards,
                 handle: ""

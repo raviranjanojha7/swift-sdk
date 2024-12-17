@@ -46,3 +46,14 @@ struct PlaylistPagination: Codable, Identifiable {
     let nextPlaylistChunkId: String?
     let prevPlaylistChunkId: String?
 }
+
+extension PlaylistMediaItem: Hashable {
+    public func hash(into hasher: inout Hasher) {
+        hasher.combine(media?.id)
+        hasher.combine(group?.id)
+    }
+    
+    public static func == (lhs: PlaylistMediaItem, rhs: PlaylistMediaItem) -> Bool {
+        return lhs.media?.id == rhs.media?.id && lhs.group?.id == rhs.group?.id
+    }
+}
