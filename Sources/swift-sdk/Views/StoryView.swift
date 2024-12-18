@@ -100,7 +100,7 @@ private struct StoryItemView: View {
     
     var body: some View {
         Button {
-            print("Profile View Tapped - Debug", mediaIndex)
+//            print("Story View Tapped - Debug", mediaIndex)
             withAnimation {
                 let newOverlayState = OverlayState(
                     activeIndex: mediaIndex,

@@ -25,15 +25,18 @@ public struct OverlayView: View {
                 Color.black
                     .edgesIgnoringSafeArea(.all)
                 
-                LazyTabView(
-                    count: playlist.media.count,
-                    selection: $viewModel.activeIndex
-                ) { index in
-                    OverlayCardView(
-                        mediaItem: playlist.media[index],
-                        viewModel: viewModel
-                    )
+                TabView(selection: $viewModel.activeIndex) {
+                    ForEach(Array(playlist.media.enumerated()), id: \.element) { index, mediaItem in
+                        OverlayCardView(
+                            mediaItem: mediaItem,
+                            index: index,
+                            viewModel: viewModel
+                        )
+                        .tag(index)
+                        .id("\(mediaItem.media?.id ?? "")-\(index)")
+                    }
                 }
+                .tabViewStyle(.page(indexDisplayMode: .never))
             }
             .opacity(fade ? 0.3 : 1)
             .offset(y: offset.height)
@@ -59,11 +62,15 @@ public struct OverlayView: View {
                     }
             )
             .onAppear {
-                print(overlayState.activeIndex)
+                // First set the playlist
                 viewModel.playlist = overlayState.playlist
-                viewModel.activeIndex = overlayState.activeIndex ?? 0
-                viewModel.widgetType = overlayState.widgetType ?? .story
-                viewModel.handle = overlayState.handle ?? ""
+                
+                // Then set the active index with a slight delay to ensure proper initialization
+                DispatchQueue.main.async {
+                    viewModel.activeIndex = overlayState.activeIndex ?? 0
+                    viewModel.widgetType = overlayState.widgetType ?? .story
+                    viewModel.handle = overlayState.handle ?? ""
+                }
             }
             .transition(.opacity)
             .frame(maxWidth: .infinity, maxHeight: .infinity)

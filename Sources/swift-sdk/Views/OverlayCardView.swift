@@ -9,6 +9,7 @@ import SwiftUI
 
 public struct OverlayCardView: View {
     let mediaItem: PlaylistMediaItem
+    let index: Int
     @ObservedObject var viewModel: OverlayViewModel
     
     public var body: some View {
@@ -58,7 +59,6 @@ public struct OverlayCardView: View {
                     HStack {
                         Spacer()
                         Button {
-                            print("close button tapped")
                             viewModel.global.quinn.overlayState = nil
                         } label: {
                             XDismissButton()
@@ -81,6 +81,7 @@ public struct OverlayCardView: View {
             VideoPlayer(url: URL(string: videoUrl))
                 .aspectRatio(9/16, contentMode: .fit)
                 .frame(width: proxy.size.width, height: proxy.size.height)
+                .id("video-\(videoUrl)")
         } else if let posterUrl = media.urls?.poster {
             AsyncImage(url: URL(string: posterUrl)) { phase in
                 switch phase {

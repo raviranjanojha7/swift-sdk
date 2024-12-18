@@ -82,7 +82,7 @@ public struct CardView: View {
     
     private func handleCardTap(index: Int) {
         withAnimation {
-            print("Card clicked")
+//            print("Card clicked")
             let newOverlayState = OverlayState(
                 activeIndex: index,
                 playlist: viewModel.playlist,
