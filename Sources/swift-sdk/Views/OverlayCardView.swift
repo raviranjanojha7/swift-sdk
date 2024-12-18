@@ -11,6 +11,7 @@ public struct OverlayCardView: View {
     let mediaItem: PlaylistMediaItem
     let index: Int
     @ObservedObject var viewModel: OverlayViewModel
+    @State private var videoProgress: CGFloat? = 0
     
     public var body: some View {
         GeometryReader { proxy in
@@ -51,9 +52,11 @@ public struct OverlayCardView: View {
                     // Progress indicators
                     OverlayTopIndicator(
                         mediaItem: mediaItem,
-                        viewModel: viewModel
+                        viewModel: viewModel,
+                        timerProgress: videoProgress ?? 0
                     )
                     .padding(.top, 12)
+                    .onAppear{print(mediaItem)}
                     
                     // Close button
                     HStack {
@@ -78,7 +81,7 @@ public struct OverlayCardView: View {
     @ViewBuilder
     private func singleMediaContent(media: PlaylistMedia, proxy: GeometryProxy) -> some View {
         if let videoUrl = media.urls?.short {
-            VideoPlayer(url: URL(string: videoUrl))
+            VideoPlayer(url: URL(string: videoUrl), progress: $videoProgress)
                 .aspectRatio(9/16, contentMode: .fit)
                 .frame(width: proxy.size.width, height: proxy.size.height)
                 .id("video-\(videoUrl)")
