@@ -35,11 +35,11 @@ class GeneralConnector: BaseConnector {
         
         do {
             let response = try await NetworkManager.shared.fetchData(from: url, as: PlaylistResponse.self)
-                    
+            
             guard let playlistObj = try? JSONDecoder().decode(PlaylistData.self, from: Data(response.playlist.utf8)) else {
                 throw APIError.invalidData
             }
-                        
+            
             // Handle empty settings case
             let settingsObj: QuinnSettings
             if response.settings == "{}" {
@@ -141,9 +141,14 @@ class GeneralConnector: BaseConnector {
         }
     }
     
-    func getProductsData(productIds: [String]) async throws -> [ProductData] {
-        // Implementation for getting product data
-        return []
+    func getProductsData(productIds: [String]) async throws -> ShopifyProductsResponse {
+        // Create empty JSON string
+        let emptyJson = "{\"data\":{}}"
+        let emptyData = emptyJson.data(using: .utf8)!
+        
+        // Decode empty response
+        let emptyResponse = try JSONDecoder().decode(ShopifyProductsResponse.self, from: emptyData)
+        return emptyResponse
     }
     
     func getSettings() {

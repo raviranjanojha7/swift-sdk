@@ -290,7 +290,7 @@ struct SetupOverlay {
 
 struct AddToCart {
     let product: MediaProduct
-    let variant: Variant
+    let variant: ProductVariant
     let mediaKey: String
 }
 

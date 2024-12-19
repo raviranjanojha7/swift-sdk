@@ -93,33 +93,4 @@ public struct Field: Codable {
     public let value: String?
 }
 
-public struct ShopifyProductsResponse: Codable {
-    public let data: [String: Any]
-    
-    enum CodingKeys: String, CodingKey {
-        case data
-    }
-    
-    public init(data: [String: Any]) {
-        self.data = data
-    }
-    
-    public func encode(to encoder: Encoder) throws {
-        var container = encoder.container(keyedBy: CodingKeys.self)
-        let jsonData = try JSONSerialization.data(withJSONObject: data)
-        let jsonString = String(data: jsonData, encoding: .utf8) ?? "{}"
-        try container.encode(jsonString, forKey: .data)
-    }
-    
-    public init(from decoder: Decoder) throws {
-        let container = try decoder.container(keyedBy: CodingKeys.self)
-        let jsonData = try container.decode(String.self, forKey: .data)
-        
-        if let data = jsonData.data(using: .utf8),
-           let jsonObject = try JSONSerialization.jsonObject(with: data) as? [String: Any] {
-            self.data = jsonObject
-        } else {
-            self.data = [:]
-        }
-    }
-}
+

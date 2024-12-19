@@ -66,7 +66,7 @@ class OverlayViewModel: ObservableObject {
     @Published var playlist: PlaylistData?
     @Published var mediaData: [String: PlaylistMediaItem] = [:]
     @Published var selectedProduct: MediaProduct?
-    @Published var selectedVariant: Variant?
+    @Published var selectedVariant: ProductVariant?
     @Published var handle = ""
     @Published var isOverlayMuted = true
     @Published var scrollDirection: ScrollDirection = .horizontal

@@ -18,6 +18,7 @@ final class NetworkManager: Sendable {
     func fetchData<T: Decodable>(from url: URL, as type: T.Type) async throws -> T {
         let (data, response) = try await URLSession.shared.data(from: url)
         if let responseString = String(data: data, encoding: .utf8) {
+//            print("Response in manager", responseString)
         }
         return try handleResponse(data: data, response: response, as: type)
     }
@@ -25,7 +26,9 @@ final class NetworkManager: Sendable {
     func fetchData<T: Decodable>(with request: URLRequest, as type: T.Type) async throws -> T {
         let (data, response) = try await URLSession.shared.data(for: request)
          if let responseString = String(data: data, encoding: .utf8) {
+//            print("Response in manager", responseString)
         }
+        
         return try handleResponse(data: data, response: response, as: type)
     }
     
