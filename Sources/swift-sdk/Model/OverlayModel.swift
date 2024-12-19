@@ -8,7 +8,7 @@
 import Foundation
 
 
-struct OverlayState: Codable {
+public struct OverlayState: Codable, Sendable {
     var activeIndex: Int?
     var playlist: PlaylistData?
     var widgetType: WidgetType?
@@ -22,7 +22,7 @@ struct OverlayState: Codable {
         )
 }
 
-enum WidgetType: String, Codable {
+enum WidgetType: String, Codable, Sendable {
     case cards
     case story
     case floating

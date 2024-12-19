@@ -6,7 +6,7 @@
 //
 
 
-struct PlaylistData: Codable, Identifiable {
+struct PlaylistData: Codable, Identifiable, Sendable {
     let id: String
     let media: [PlaylistMediaItem]
     let settings: QuinnSettings?
@@ -17,18 +17,18 @@ struct PlaylistData: Codable, Identifiable {
 }
 
 
-struct PlaylistMediaItem: Codable {
+struct PlaylistMediaItem: Codable, Sendable {
     let type: PlaylistMediaType
     let group: PlaylistMediaGroup?
     let media: PlaylistMedia?
 }
 
-enum PlaylistMediaType: String, Codable {
+enum PlaylistMediaType: String, Codable, Sendable {
     case media = "MEDIA"
     case group = "GROUP"
 }
 
-struct PlaylistMediaGroup: Codable, Identifiable {
+struct PlaylistMediaGroup: Codable, Identifiable, Sendable {
     let id: String
     let hidden: Bool
     let sequence: Int
@@ -39,7 +39,7 @@ struct PlaylistMediaGroup: Codable, Identifiable {
     let templates: Templates?
 }
 
-struct PlaylistPagination: Codable, Identifiable {
+struct PlaylistPagination: Codable, Identifiable, Sendable {
     let id: String
     let playlistId: String
     let isSynced: Bool

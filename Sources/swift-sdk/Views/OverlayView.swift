@@ -19,7 +19,8 @@ public struct OverlayView: View {
     }
     
     public var body: some View {
-        if let overlayState = global.quinn.overlayState,
+        if var quinn = global.quinn,
+           let overlayState = quinn.overlayState,
            let playlist = overlayState.playlist {
             ZStack {
                 Color.black
@@ -53,7 +54,7 @@ public struct OverlayView: View {
                     .onEnded { gesture in
                         withAnimation(.interactiveSpring()) {
                             if gesture.translation.height > 100 {
-                                global.quinn.overlayState = nil
+                                quinn.overlayState = nil
                             } else {
                                 offset = .zero
                                 fade = false

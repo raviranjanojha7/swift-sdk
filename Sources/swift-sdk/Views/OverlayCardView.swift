@@ -12,6 +12,7 @@ public struct OverlayCardView: View {
     let index: Int
     @ObservedObject var viewModel: OverlayViewModel
     @State private var videoProgress: CGFloat? = 0
+    @ObservedObject private var global = Global.shared
     
     public var body: some View {
         GeometryReader { proxy in
@@ -56,13 +57,16 @@ public struct OverlayCardView: View {
                         timerProgress: videoProgress ?? 0
                     )
                     .padding(.top, 12)
-                    .onAppear{print(mediaItem)}
                     
                     // Close button
                     HStack {
                         Spacer()
                         Button {
-                            viewModel.global.quinn.overlayState = nil
+                            if let quinn = global.quinn {
+                                var updatedQuinn = quinn
+                                updatedQuinn.overlayState = nil
+                                global.quinn = updatedQuinn
+                            }
                         } label: {
                             XDismissButton()
                         }
@@ -143,7 +147,11 @@ public struct OverlayCardView: View {
             viewModel.groupMediaIndex = 0 // Reset group index when moving to next item
         } else {
             // Close overlay if we're at the end
-            viewModel.global.quinn.overlayState = nil
+            if let quinn = global.quinn {
+                var updatedQuinn = quinn
+                updatedQuinn.overlayState = nil
+                global.quinn = updatedQuinn
+            }
         }
     }
     

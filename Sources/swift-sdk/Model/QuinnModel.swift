@@ -8,13 +8,14 @@
 import Foundation
 
 
-enum ShopType: String, Codable {
+public enum ShopType: String, Codable {
     case shopify = "SHOPIFY"
     case general = "GENERAL"
 }
 
 struct Connector {
     let shop: String
+    let cdn: String
     let accessToken: String
     let shopType: ShopType
 }
@@ -26,7 +27,34 @@ struct AppConfig {
     let shopType: ShopType
 }
 
-struct Quinn: Codable, Identifiable {
+public protocol QuinnProtocol {
+    var sft: String { get }
+    var cdn: String { get }
+    var shopDomain: String { get }
+    var shopType: ShopType { get }
+    var apiCache: [String: String] { get }
+    var functions: DefaultQuinnFunctions { get }
+    var currencySymbol: String { get }
+    var settings: QuinnSettings { get }
+    var appId: String { get }
+    var pageType: String? { get }
+    var pageId: String? { get }
+    var pageHandle: String? { get }
+    var overlayState: OverlayState? { get set }
+    var overlayLoadStartTime: Double? { get }
+    var overlayLoadEndTime: Double? { get }
+    var overlayOpenTime: Double? { get }
+    var overlayDuration: Double? { get }
+    var overlayWidth: Double? { get }
+    var overlayHeight: Double? { get }
+    var disableGradient: Bool? { get }
+    var videoResizeMode: VideoResizeMode? { get }
+    var fontFamily: String? { get }
+    var version: String { get }
+    var styles: QuinnStyles? { get }
+}
+
+struct Quinn: QuinnProtocol, Codable, Identifiable {
     let id = UUID()
     let sft: String
     let cdn: String
@@ -185,12 +213,12 @@ struct Quinn: Codable, Identifiable {
     }
 }
 
-enum VideoResizeMode: String, Codable {
+public enum VideoResizeMode: String, Codable {
     case contain
     case cover
 }
 
-struct QuinnStyles: Codable {
+public struct QuinnStyles: Codable {
     let sizeSelector: SizeSelectorStyle?
     
     enum CodingKeys: String, CodingKey {
@@ -267,7 +295,7 @@ struct AddToCart {
 }
 
 
-class DefaultQuinnFunctions: QuinnFunctions {
+public class DefaultQuinnFunctions: QuinnFunctions {
     func shareProduct(message: String, url: String) {
     }
     

@@ -100,7 +100,7 @@ private struct StoryItemView: View {
     
     var body: some View {
         Button {
-//            print("Story View Tapped - Debug", mediaIndex)
+            print("Story View Tapped - Debug", mediaIndex)
             withAnimation {
                 let newOverlayState = OverlayState(
                     activeIndex: mediaIndex,
@@ -108,7 +108,11 @@ private struct StoryItemView: View {
                     widgetType: .story,  
                     handle: ""
                 )
-                global.quinn.overlayState = newOverlayState
+                if let quinn = global.quinn {
+                    var updatedQuinn = quinn
+                    updatedQuinn.overlayState = newOverlayState
+                    global.quinn = updatedQuinn
+                }
             }
         } label: {
             ZStack {
@@ -157,8 +161,18 @@ private struct StoryItemView: View {
 }
 
 #Preview {
-    StoryView(playlistId: "123", pageHandle: "456", layer: 7)
-        .environmentObject(OverlayViewModel())
+    QuinnRoot(
+        sft: "44a96721cac4ae4138b4e3598cfdea12",
+        cdn: "//cdn.shopify.com/s/files/1/0057/8938/4802/files/",
+        shopDomain: "boatlifestylein.myshopify.com",
+        shopType: .shopify
+    ) {
+        StoryView(
+            playlistId: "INDEX_index_STORY_1",
+            pageHandle: "your_page_handle",
+            layer: 1
+        )
+    }
 }
 
 

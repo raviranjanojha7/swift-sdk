@@ -8,6 +8,8 @@
 import Foundation
 
 
+struct ProductData {}
+
 struct MediaProduct: Codable, Identifiable {
     let id: String
     let title: String

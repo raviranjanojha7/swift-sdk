@@ -78,50 +78,50 @@ class OverlayViewModel: ObservableObject {
     }
     
     func overlayInfoToggle(payload: String) {
-          Task { @MainActor in
-              global.quinn.functions.overlayInfoToggle(mediaKey: payload)
-          }
-      }
-      
-      func redirectToProduct(payload: MediaProduct) {
-          Task { @MainActor in
-              if let selectedProduct = selectedProduct {
-                  global.quinn.functions.redirectToProduct(product: selectedProduct)
-              }
-          }
-      }
-      
-      func closeOverlay() {
-          Task { @MainActor in
-              global.quinn.functions.closeOverlay()
-          }
-      }
-      
-      func openCartDrawer() {
-          Task { @MainActor in
-              global.quinn.functions.openCartDrawer()
-          }
-      }
-      
-      func addToCart(dataId: String) {
+        Task { @MainActor in
+            global.quinn!.functions.overlayInfoToggle(mediaKey: payload)
+        }
+    }
+    
+    func redirectToProduct(payload: MediaProduct) {
+        Task { @MainActor in
+            if let selectedProduct = selectedProduct {
+                global.quinn!.functions.redirectToProduct(product: selectedProduct)
+            }
+        }
+    }
+    
+    func closeOverlay() {
+        Task { @MainActor in
+            global.quinn!.functions.closeOverlay()
+        }
+    }
+    
+    func openCartDrawer() {
+        Task { @MainActor in
+            global.quinn!.functions.openCartDrawer()
+        }
+    }
+    
+    func addToCart(dataId: String) {
 
-      }
-      
-      func updateAppCart(cart: ShopifyCart? = nil) {
+    }
+    
+    func updateAppCart(cart: ShopifyCart? = nil) {
 
-      }
-      
-      func ctaRedirect() {
-      }
-      
-      private func extractPageId(from link: String) -> String? {
-          guard let pidRange = link.range(of: "pid=") else { return nil }
-          let start = link[pidRange.upperBound...]
-          guard let end = start.firstIndex(of: "&") else {
-              return String(start)
-          }
-          return String(start[..<end])
-      }
+    }
+    
+    func ctaRedirect() {
+    }
+    
+    private func extractPageId(from link: String) -> String? {
+        guard let pidRange = link.range(of: "pid=") else { return nil }
+        let start = link[pidRange.upperBound...]
+        guard let end = start.firstIndex(of: "&") else {
+            return String(start)
+        }
+        return String(start[..<end])
+    }
 
 }
 

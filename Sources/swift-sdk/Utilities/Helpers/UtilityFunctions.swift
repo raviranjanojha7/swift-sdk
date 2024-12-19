@@ -7,12 +7,12 @@
 
 import Foundation
 
-func getUrls(files: [MediaFile], mediaId: String) -> MediaUrls {
+func getUrls(files: [MediaFile], mediaId: String, cdn: String) -> MediaUrls {
     var urls: [String: String] = [:]
     
     for file in files {
         let fileExtension = ["STORY", "POSTER"].contains(file.variant.rawValue) ? "jpg" : "mp4"
-        urls[file.variant.rawValue] = "https://videocdn.quinn.live/\(mediaId)/quinn_\(file.id).\(fileExtension)"
+        urls[file.variant.rawValue] = "https:\(cdn)/quinn_\(file.id).\(fileExtension)"
     }
     
     return MediaUrls(

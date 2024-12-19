@@ -8,70 +8,19 @@
 import Foundation
 
 @MainActor
-final class Global: ObservableObject {
-    static let shared = Global()
+public class Global: ObservableObject {
+    public static let shared = Global()
     
-    @Published var quinn: Quinn
-    
-    private init() {
-        self.quinn = Quinn(
-            sft: "",
-            cdn: "",
-            shopDomain: "",
-            shopType: .shopify,
-            apiCache: [:],
-            functions: DefaultQuinnFunctions(),
-            currencySymbol: "₹",
-            settings: .default,
-            appId: "5905719",
-            pageType: nil,
-            pageId: nil,
-            pageHandle: nil,
-            overlayState: nil,
-            overlayLoadStartTime: nil,
-            overlayLoadEndTime: nil,
-            overlayOpenTime: nil,
-            overlayDuration: nil,
-            overlayWidth: nil,
-            overlayHeight: nil,
-            disableGradient: nil,
-            videoResizeMode: nil,
-            fontFamily: nil,
-            version: "",
-            styles: nil
-        )
+    @Published public var quinn: QuinnProtocol? {
+        willSet {
+            if let newQuinn = newValue as? QuinnProtocol {
+                objectWillChange.send()
+            }
+        }
     }
+    
+    private init() {}
 }
 
-@MainActor
-func initApp(config: AppConfig) {
-    let appState = Global.shared
-    
-    appState.quinn = Quinn(
-        sft: config.sft ?? "",
-        cdn: config.cdn,
-        shopDomain: config.shopDomain,
-        shopType: config.shopType,
-        apiCache: [:],
-        functions: DefaultQuinnFunctions(),
-        currencySymbol: "₹",
-        settings: .default,
-        appId: "5905719",
-        pageType: nil,
-        pageId: nil,
-        pageHandle: nil,
-        overlayState: nil,
-        overlayLoadStartTime: nil,
-        overlayLoadEndTime: nil,
-        overlayOpenTime: nil,
-        overlayDuration: nil,
-        overlayWidth: nil,
-        overlayHeight: nil,
-        disableGradient: nil,
-        videoResizeMode: nil,
-        fontFamily: nil,
-        version: "",
-        styles: nil
-    )
-}
+
 

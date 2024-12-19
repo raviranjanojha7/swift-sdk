@@ -7,7 +7,7 @@
 
 import Foundation
 
-struct QuinnSettings: Codable {
+public struct QuinnSettings: Codable, Sendable {
     let abControlGroupPercentage: String
     let abEnabledForWidgets: [String] // Changed from any[] to [String] - adjust type if needed
     let abEnabledOnPages: [String] // Changed from any[] to [String] - adjust type if needed
@@ -158,15 +158,15 @@ struct QuinnSettings: Codable {
 }
 
 // Supporting Models
-struct VisibilitySettings: Codable {
-    enum Visibility: String, Codable {
+struct VisibilitySettings: Codable, Sendable {
+    enum Visibility: String, Codable, Sendable {
         case both, mobile, desktop
     }
     
     let visibility: Visibility
 }
 
-struct StorySettings: Codable {
+struct StorySettings: Codable, Sendable {
     let heroText: String
     let heroTextColor: String
     let heroTitle: String
@@ -214,7 +214,7 @@ struct StorySettings: Codable {
     )
 }
 
-struct CardSettings: Codable {
+struct CardSettings: Codable, Sendable {
     let cardsHeading: String
     let reviewsPlaceholder: String
     let showFirstProductPrice: Bool
@@ -238,7 +238,7 @@ struct CardSettings: Codable {
     )
 }
 
-struct FloatingSettings: Codable {
+struct FloatingSettings: Codable, Sendable {
     let desktopFloatingBottom: String
     let desktopFloatingRight: String
     let disableWidget: Bool
@@ -248,11 +248,11 @@ struct FloatingSettings: Codable {
     let mobileFloatingBottom: String
     let mobileFloatingRight: String
     
-    enum FloatingSide: String, Codable {
+    enum FloatingSide: String, Codable, Sendable {
         case left, right
     }
     
-    enum FloatingType: String, Codable {
+    enum FloatingType: String, Codable, Sendable {
         case regular, circle, rectangle
     }
     
@@ -279,7 +279,7 @@ struct FloatingSettings: Codable {
     )
 }
 
-struct GeneralSettings: Codable {
+struct GeneralSettings: Codable, Sendable {
     let brandingTextColor: String
     let cartProvider: String
     let cartTagging: Bool
@@ -336,7 +336,7 @@ struct GeneralSettings: Codable {
     )
 }
 
-struct OverlaySettings: Codable {
+struct OverlaySettings: Codable, Sendable {
     let useSwatchImages: Bool
     let cartSelector: String
     let disableOverlayMinimiser: Bool
@@ -361,7 +361,7 @@ struct OverlaySettings: Codable {
     let uniformGroupOverlayUx: Bool?
     let closeOverlayBackButton: Bool?
     
-    enum SwipeDirection: String, Codable {
+    enum SwipeDirection: String, Codable, Sendable {
         case horizontal, vertical
     }
     
@@ -418,7 +418,7 @@ struct OverlaySettings: Codable {
     )
 }
 
-struct CustomiserSettings: Codable {
+struct CustomiserSettings: Codable, Sendable {
     let cardCutoffPrice: Bool
     let primaryBtnTitle: String
     let reviewProvider: String
