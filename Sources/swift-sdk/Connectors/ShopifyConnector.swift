@@ -253,6 +253,7 @@ class ShopifyConnector: BaseConnector {
                 "altText": edge.node.altText ?? ""  // Add altText with empty string as default
             ]
         }
+        
 
         // Create the MediaProduct using decoder with optional handling
         let productDict: [String: Any] = [
@@ -327,7 +328,21 @@ enum ShopifyGQLQueries {
                     amount
                     currencyCode
                 }
+                maxVariantPrice {
+                    amount
+                    currencyCode
+                }
             }
+                compareAtPriceRange {
+                    minVariantPrice {
+                        amount
+                        currencyCode
+                    }
+                    maxVariantPrice {
+                        amount
+                        currencyCode
+                    }
+                }
             images(first: 1) {
                 edges {
                     node {
