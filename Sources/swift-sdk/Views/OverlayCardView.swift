@@ -12,79 +12,92 @@ public struct OverlayCardView: View {
     let index: Int
     @ObservedObject var viewModel: OverlayViewModel
     @State private var videoProgress: CGFloat? = 0
+    @State private var isMuted: Bool = false
     @ObservedObject private var global = Global.shared
     
     public var body: some View {
         GeometryReader { proxy in
-            ZStack(alignment: .top) {
+            ZStack(alignment: .bottom) {
                 // Content
-                if mediaItem.type == .media {
-                    if let media = mediaItem.media {
-                        singleMediaContent(media: media, proxy: proxy)
+                ZStack(alignment: .top) {
+                    if mediaItem.type == .media {
+                        if let media = mediaItem.media {
+                            singleMediaContent(media: media, proxy: proxy)
+                        }
+                    } else if mediaItem.type == .group {
+                        if let group = mediaItem.group {
+                            let currentMedia = group.medias[viewModel.groupMediaIndex]
+                            singleMediaContent(media: currentMedia, proxy: proxy)
+                        }
                     }
-                } else if mediaItem.type == .group {
-                    if let group = mediaItem.group {
-                        let currentMedia = group.medias[viewModel.groupMediaIndex]
-                        singleMediaContent(media: currentMedia, proxy: proxy)
+                    
+                    // Navigation overlay (behind other overlays)
+                    HStack {
+                        // Left tap area
+                        Rectangle()
+                            .fill(.black.opacity(0.01))
+                            .onTapGesture {
+                                updateOverlay(forward: false)
+                            }
+                        
+                        // Right tap area
+                        Rectangle()
+                            .fill(.black.opacity(0.01))
+                            .onTapGesture {
+                                updateOverlay(forward: true)
+                            }
+                    }
+                    
+                    // Top overlay elements (only close button)
+                    VStack {
+                        HStack {
+                            Spacer()
+                            Button {
+                                if let quinn = global.quinn {
+                                    var updatedQuinn = quinn
+                                    updatedQuinn.overlayState = nil
+                                    global.quinn = updatedQuinn
+                                }
+                            } label: {
+                                XDismissButton()
+                            }
+                        }
+                        .padding(.top, 38)
+                        .padding(.horizontal, 8)
+                        
+                        Spacer()
                     }
                 }
+                .frame(width: proxy.size.width, height: proxy.size.height)
+                .background(.black)
                 
-                // Navigation overlay (behind other overlays)
-                HStack {
-                    // Left tap area
-                    Rectangle()
-                        .fill(.black.opacity(0.01))
-                        .onTapGesture {
-                            print("left tap gesture")
-                            updateOverlay(forward: false)
-                        }
-                    
-                    // Right tap area
-                    Rectangle()
-                        .fill(.black.opacity(0.01))
-                        .onTapGesture {
-                            print("right tap gesture")
-                            updateOverlay(forward: true)
-                        }
-                }
-                
-                // Top overlay elements in VStack (on top)
-                VStack(spacing: 0) {
-                    // Progress indicators
-                    OverlayTopIndicator(
-                        mediaItem: mediaItem,
-                        viewModel: viewModel,
-                        timerProgress: videoProgress ?? 0
-                    )
-                    .padding(.top, 12)
-                    
-                    // Close button
+                // Bottom section with mute button and product info
+                VStack(spacing: 16) {
+                    // Mute button aligned to right
                     HStack {
                         Spacer()
                         Button {
-                            if let quinn = global.quinn {
-                                var updatedQuinn = quinn
-                                updatedQuinn.overlayState = nil
-                                global.quinn = updatedQuinn
-                            }
+                            isMuted.toggle()
                         } label: {
-                            XDismissButton()
+                            MuteButton(isMuted: $isMuted)
                         }
                     }
-                    .padding(.top, 16)
+                    .padding(.horizontal, 16)
                     
-                    Spacer()
+                    // Product Information
+                    if let product = getFirstProduct() {
+                        OverlayProductInformation(product: product)
+                    }
                 }
+                .padding(.bottom, 48)
             }
-            .frame(width: proxy.size.width, height: proxy.size.height)
-            .background(.black)
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
     }
     
     @ViewBuilder
     private func singleMediaContent(media: PlaylistMedia<MediaProduct>, proxy: GeometryProxy) -> some View {
-        if let videoUrl = media.urls?.short {
+        if let videoUrl = media.urls?.full {
             VideoPlayer(url: URL(string: videoUrl), progress: $videoProgress)
                 .aspectRatio(9/16, contentMode: .fit)
                 .frame(width: proxy.size.width, height: proxy.size.height)
@@ -168,6 +181,21 @@ public struct OverlayCardView: View {
             }
         }
     }
+    
+    private func getFirstProduct() -> MediaProduct? {
+        switch mediaItem.type {
+        case .media:
+            return mediaItem.media?.products.first
+        case .group:
+            if let group = mediaItem.group {
+                let currentMedia = group.medias[viewModel.groupMediaIndex]
+                return currentMedia.products.first
+            }
+            return nil
+        }
+    }
 }
+
+
 
 
