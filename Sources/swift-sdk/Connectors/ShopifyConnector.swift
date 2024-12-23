@@ -23,29 +23,25 @@ class ShopifyConnector: BaseConnector {
         self.graphQLService = GraphQLService(shop: shop, accessToken: accessToken)
     }
     
-    func getPlaylistData(playlistId: String) async throws -> PlaylistData {
+    func getPlaylistData(playlistId: String) async throws -> PlaylistDataWithProducts {
         do {
             // Create GraphQL query
             let query = ShopifyGQLQueries.GET_META_OBJECT
             let variables = ["handle": ["handle": playlistId, "type": "app--\(APP_ID)--widgets"]]
-            
             let requestBody = GraphQLRequestBody(query: query, variables: variables)
-            
             
             // Make the request
             let response = try await graphQLService.query(requestBody) as MetaObjectResponse
             
-            
-            // Find playlist data from fields
+            // Decode initial playlist data without products
             guard let playlistField = response.data.metaobject.fields.first(where: { $0.key == "playlist" }),
                   let playlistJson = playlistField.value,
-                  let playlistObj = try? JSONDecoder().decode(PlaylistData.self, from: Data(playlistJson.utf8)) else {
+                  let playlistObj = try? JSONDecoder().decode(PlaylistDataWithoutProducts.self, from: Data(playlistJson.utf8)) else {
                 throw APIError.invalidData
             }
             
-            
             // Collect all media items (both individual and from groups)
-            var allMedia: [PlaylistMedia] = []
+            var allMedia: [PlaylistMedia<ProductReference>] = []
             playlistObj.media.forEach { mediaItem in
                 switch mediaItem.type {
                 case .media:
@@ -61,23 +57,21 @@ class ShopifyConnector: BaseConnector {
             
             // Get product map using the new function
             let productMap = try await getMediaProductsDataMap(media: allMedia)
-                                    
+            
             // Transform the media items with product details
-            let transformedMedia = playlistObj.media.map { mediaItem -> PlaylistMediaItem in
+            let transformedMedia = playlistObj.media.map { mediaItem -> PlaylistMediaItem<PlaylistMedia<MediaProduct>> in
                 switch mediaItem.type {
                 case .media:
                     if let media = mediaItem.media {
                         // Map products to full product details
                         let updatedProducts = media.products.compactMap { product in
                             productMap[product.productid]
-                        } ?? []
+                        }
                         
-                        let transformedMedia = PlaylistMedia(
+                        let transformedMedia = PlaylistMedia<MediaProduct>(
                             id: media.id,
                             filename: media.filename,
-                            products: updatedProducts.map { product in
-                                ProductReference(productid: product.id, handle: product.handle)
-                            },  
+                            products: updatedProducts,
                             files: media.files,
                             storytitle: media.storytitle,
                             storysubtitle: media.storysubtitle,
@@ -96,7 +90,7 @@ class ShopifyConnector: BaseConnector {
                             media: transformedMedia
                         )
                     }
-                    return mediaItem
+                    return PlaylistMediaItem(type: mediaItem.type, group: nil, media: nil)
                     
                 case .group:
                     if let group = mediaItem.group {
@@ -105,14 +99,12 @@ class ShopifyConnector: BaseConnector {
                             // Map products to full product details
                             let updatedProducts = media.products.compactMap { product in
                                 productMap[product.productid]
-                            } ?? []
+                            }
                             
-                            return PlaylistMedia(
+                            return PlaylistMedia<MediaProduct>(
                                 id: media.id,
                                 filename: media.filename,
-                                products: updatedProducts.map { product in
-                                    ProductReference(productid: product.id, handle: product.handle)
-                                },
+                                products: updatedProducts,
                                 files: media.files,
                                 storytitle: media.storytitle,
                                 storysubtitle: media.storysubtitle,
@@ -143,16 +135,16 @@ class ShopifyConnector: BaseConnector {
                             media: nil
                         )
                     }
-                    return mediaItem
+                    return PlaylistMediaItem(type: mediaItem.type, group: nil, media: nil)
                 }
             }
-                        
+            
             // Create new PlaylistData with all transformed components
             return PlaylistData(
                 id: playlistObj.id,
                 media: transformedMedia,
-                settings: QuinnSettings(), // Using default settings since they're not in the GraphQL response
-                templates: nil,
+                settings: playlistObj.settings,
+                templates: playlistObj.templates,
                 paginationInfo: playlistObj.paginationInfo,
                 nextPlaylistChunkId: playlistObj.nextPlaylistChunkId,
                 prevPlaylistChunkId: playlistObj.prevPlaylistChunkId
@@ -210,7 +202,7 @@ class ShopifyConnector: BaseConnector {
         // Implementation for getting file prefix
     }
     
-    func getMediaProductsDataMap(media: [PlaylistMedia]) async throws -> [String: MediaProduct] {
+    func getMediaProductsDataMap(media: [PlaylistMedia<ProductReference>]) async throws -> [String: MediaProduct] {
         // Collect all product IDs
         var productIds: [String] = []
         

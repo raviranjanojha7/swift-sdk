@@ -7,11 +7,10 @@
 
 import Foundation
 
-
-struct PlaylistMedia: Codable, Identifiable {
+struct PlaylistMedia<P: Codable & Sendable>: Codable, Identifiable, Sendable {
     let id: String
     let filename: String
-    let products: [ProductReference]
+    let products: [P]
     let files: [MediaFile]
     let storytitle: String?
     let storysubtitle: String?
@@ -24,25 +23,28 @@ struct PlaylistMedia: Codable, Identifiable {
     let ctatitle: String?
 }
 
-struct ProductReference: Codable {
+typealias PlaylistMediaWithProducts = PlaylistMedia<MediaProduct>
+typealias PlaylistMediaWithoutProducts = PlaylistMedia<ProductReference>
+
+struct ProductReference: Codable, Sendable {
     let productid: String
     let handle: String
 }
 
-struct MediaFile: Codable {
+struct MediaFile: Codable, Sendable {
     let mediaid: String
     let variant: MediaVariant
     let id: String
 }
 
-enum MediaVariant: String, Codable {
+enum MediaVariant: String, Codable, Sendable {
     case full = "FULL"
     case short = "SHORT"
     case poster = "POSTER"
     case story = "STORY"
 }
 
-struct MediaUrls: Codable {
+struct MediaUrls: Codable, Sendable {
     let short: String?
     let full: String?
     let poster: String?

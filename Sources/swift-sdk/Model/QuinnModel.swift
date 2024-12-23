@@ -282,7 +282,7 @@ struct OpenOverlayAction {
 }
 
 struct SetupOverlay {
-    let playlist: PlaylistData
+    let playlist: PlaylistDataWithProducts
     let index: Int
     let type: WidgetType
     let onClose: () -> Void

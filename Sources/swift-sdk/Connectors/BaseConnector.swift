@@ -8,7 +8,7 @@
 import Foundation
 
 protocol BaseConnector {
-    func getPlaylistData(playlistId: String) async throws -> PlaylistData
+    func getPlaylistData(playlistId: String) async throws -> PlaylistDataWithProducts
     func getSettings()
     func getProductsData(productIds: [String]) async throws -> ShopifyProductsResponse
     func getPlaylistHandle()

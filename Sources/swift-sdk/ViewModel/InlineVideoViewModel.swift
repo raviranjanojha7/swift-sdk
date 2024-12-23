@@ -12,10 +12,10 @@ class InlineViewModel: ObservableObject {
     // MARK: - Published Properties
     @Published var isLoading = false
     @Published var playlistId: String = ""
-    @Published var playlist: PlaylistData?
+    @Published var playlist: PlaylistDataWithProducts?
     @Published var widgetType: WidgetType = WidgetType.imax
     @Published var handle = ""
-    @Published var mediaData: [String: PlaylistMediaItem] = [:]
+    @Published var mediaData: [String: PlaylistMediaItemWithProducts] = [:]
     
     // MARK: - Initialization
     init() {
@@ -33,11 +33,11 @@ class InlineViewModel: ObservableObject {
 
 // MARK: - Helper Methods
 extension InlineViewModel {
-    func updatePlaylist(_ newPlaylist: PlaylistData?) {
+    func updatePlaylist(_ newPlaylist: PlaylistDataWithProducts?) {
         playlist = newPlaylist
     }
     
-    func updateMediaData(_ newMediaData: [String: PlaylistMediaItem]) {
+    func updateMediaData(_ newMediaData: [String: PlaylistMediaItemWithProducts]) {
         mediaData = newMediaData
     }
     

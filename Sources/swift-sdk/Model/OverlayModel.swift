@@ -10,7 +10,7 @@ import Foundation
 
 public struct OverlayState: Codable, Sendable {
     var activeIndex: Int?
-    var playlist: PlaylistData?
+    var playlist: PlaylistDataWithProducts?
     var widgetType: WidgetType?
     var handle: String?
     

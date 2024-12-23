@@ -9,9 +9,9 @@ import Foundation
 
 
 
-struct MediaProduct: Codable {
-    let available: Bool
+struct MediaProduct: Codable, @unchecked Sendable {
     let card_top_labels: [String: Any]?
+    let available: Bool
     let compare_at_price: String
     let compare_at_price_max: String
     let compare_at_price_max_number: String
@@ -146,7 +146,7 @@ struct MediaProduct: Codable {
     }
 }
 
-struct ProductVariant: Codable {
+struct ProductVariant: Codable, Sendable {
     let attribute_id: String
     let available: Bool
     let compare_at_price: String
@@ -173,23 +173,23 @@ struct ProductVariant: Codable {
     }
 }
 
-struct MediaProductImage: Codable {
+struct MediaProductImage: Codable, Sendable {
     let altText: String
     let url: String
 }
 
-struct ProductOptionWithValues: Codable {
+struct ProductOptionWithValues: Codable, Sendable {
     let id: String
     let name: String
     let values: [String]
 }
 
-struct Productmetadata: Codable {
+struct Productmetadata: Codable, Sendable {
     let label: String
     let value: String
 }
 
-struct SwatchData: Codable {
+struct SwatchData: Codable, Sendable {
     let available: Bool
     let group: String
     let image: String

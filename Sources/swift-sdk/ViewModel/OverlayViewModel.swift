@@ -63,8 +63,8 @@ class OverlayViewModel: ObservableObject {
     @Published var groupMediaIndex = 0
     @Published var widgetType: WidgetType = WidgetType.cards
     @Published var playlistId = ""
-    @Published var playlist: PlaylistData?
-    @Published var mediaData: [String: PlaylistMediaItem] = [:]
+    @Published var playlist: PlaylistDataWithProducts?
+    @Published var mediaData: [String: PlaylistMediaItemWithProducts] = [:]
     @Published var selectedProduct: MediaProduct?
     @Published var selectedVariant: ProductVariant?
     @Published var handle = ""

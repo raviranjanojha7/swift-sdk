@@ -8,7 +8,7 @@
 import SwiftUI
 
 struct OverlayTopIndicator: View {
-    let mediaItem: PlaylistMediaItem
+    let mediaItem: PlaylistMediaItemWithProducts
     @ObservedObject var viewModel: OverlayViewModel
     @State var timerProgress: CGFloat = 0
     

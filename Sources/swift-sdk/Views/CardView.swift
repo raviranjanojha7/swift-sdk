@@ -39,7 +39,7 @@ public struct CardView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(spacing: 20) {
                 if let media = viewModel.playlist?.media {
-                    ForEach(Array(media.enumerated()), id: \.element) { index, mediaItem in
+                    ForEach(Array(media.enumerated()), id: \.offset) { index, mediaItem in
                         cardButton(for: mediaItem, mediaIndex: index)
                             .id("\(mediaItem.media?.id ?? "")-\(index)")
                     }
@@ -49,7 +49,7 @@ public struct CardView: View {
         }
     }
     
-    private func cardButton(for mediaItem: PlaylistMediaItem, mediaIndex: Int) -> some View {
+    private func cardButton(for mediaItem: PlaylistMediaItemWithProducts, mediaIndex: Int) -> some View {
         Button(action: {
             handleCardTap(index: mediaIndex)
         }) {
@@ -57,7 +57,7 @@ public struct CardView: View {
         }
     }
     
-    private func cardContent(for mediaItem: PlaylistMediaItem) -> some View {
+    private func cardContent(for mediaItem: PlaylistMediaItemWithProducts) -> some View {
         Group {
             if mediaItem.type == .media {
                 CardItemView(mediaItem: mediaItem, viewModel: viewModel)
@@ -68,16 +68,22 @@ public struct CardView: View {
         }
     }
     
-    private func groupContent(for mediaItem: PlaylistMediaItem) -> some View {
-        CardItemView(
-            mediaItem: PlaylistMediaItem(
-                type: .media,
-                group: nil,
-                media: mediaItem.group?.medias[0]
-            ),
-            viewModel: viewModel
-        )
-        .frame(width: 151, height: 271)
+    private func groupContent(for mediaItem: PlaylistMediaItemWithProducts) -> some View {
+        Group {
+            if let group = mediaItem.group, !group.medias.isEmpty {
+                CardItemView(
+                    mediaItem: PlaylistMediaItemWithProducts(
+                        type: .media,
+                        group: nil,
+                        media: group.medias[0]
+                    ),
+                    viewModel: viewModel
+                )
+                .frame(width: 151, height: 271)
+            } else {
+                EmptyView()
+            }
+        }
     }
     
     private func handleCardTap(index: Int) {
@@ -90,10 +96,10 @@ public struct CardView: View {
                 handle: ""
             )
             if let quinn = global.quinn {
-                    var updatedQuinn = quinn
-                    updatedQuinn.overlayState = newOverlayState
-                    global.quinn = updatedQuinn
-                }
+                var updatedQuinn = quinn
+                updatedQuinn.overlayState = newOverlayState
+                global.quinn = updatedQuinn
+            }
         }
     }
     
@@ -115,7 +121,7 @@ public struct CardView: View {
 
 // Separate view for individual card items
 private struct CardItemView: View {
-    let mediaItem: PlaylistMediaItem
+    let mediaItem: PlaylistMediaItemWithProducts
     @ObservedObject var viewModel: WidgetViewModel
     
     var body: some View {
@@ -127,7 +133,7 @@ private struct CardItemView: View {
                         .frame(width: 151, height: 271)
                         .clipShape(RoundedRectangle(cornerRadius: 12))
                         .allowsHitTesting(false)
-                }  else if let posterUrl = media.urls?.poster {
+                } else if let posterUrl = media.urls?.poster {
                     AsyncImage(url: URL(string: posterUrl)) { phase in
                         switch phase {
                         case .success(let image):
@@ -155,7 +161,6 @@ private struct CardItemView: View {
             }
         }
         .shadow(radius: 4)
-        
     }
 }
 

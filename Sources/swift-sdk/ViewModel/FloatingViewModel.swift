@@ -13,7 +13,7 @@ class FloatingViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var widgetType: WidgetType = WidgetType.floating
     @Published var playlistId: String?
-    @Published var playlist: PlaylistData?
+    @Published var playlist: PlaylistDataWithProducts?
     @Published var mediaData: [String: OverlayMedia] = [:]
     @Published var handle = ""
     @Published var isFloatingCollapsed = true
@@ -36,7 +36,7 @@ class FloatingViewModel: ObservableObject {
 
 // MARK: - Helper Methods
 extension FloatingViewModel {
-    func updatePlaylist(_ newPlaylist: PlaylistData?) {
+    func updatePlaylist(_ newPlaylist: PlaylistDataWithProducts?) {
         playlist = newPlaylist
     }
     

@@ -8,7 +8,7 @@
 import SwiftUI
 
 public struct OverlayCardView: View {
-    let mediaItem: PlaylistMediaItem
+    let mediaItem: PlaylistMediaItemWithProducts
     let index: Int
     @ObservedObject var viewModel: OverlayViewModel
     @State private var videoProgress: CGFloat? = 0
@@ -83,7 +83,7 @@ public struct OverlayCardView: View {
     }
     
     @ViewBuilder
-    private func singleMediaContent(media: PlaylistMedia, proxy: GeometryProxy) -> some View {
+    private func singleMediaContent(media: PlaylistMedia<MediaProduct>, proxy: GeometryProxy) -> some View {
         if let videoUrl = media.urls?.short {
             VideoPlayer(url: URL(string: videoUrl), progress: $videoProgress)
                 .aspectRatio(9/16, contentMode: .fit)

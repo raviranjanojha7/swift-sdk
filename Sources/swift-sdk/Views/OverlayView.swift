@@ -27,7 +27,7 @@ public struct OverlayView: View {
                     .edgesIgnoringSafeArea(.all)
                 
                 TabView(selection: $viewModel.activeIndex) {
-                    ForEach(Array(playlist.media.enumerated()), id: \.element) { index, mediaItem in
+                    ForEach(Array(playlist.media.enumerated()), id: \.offset) { index, mediaItem in
                         OverlayCardView(
                             mediaItem: mediaItem,
                             index: index,

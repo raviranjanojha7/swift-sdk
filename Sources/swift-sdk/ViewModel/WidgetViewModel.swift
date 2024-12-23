@@ -13,18 +13,18 @@ class WidgetViewModel: ObservableObject {
     @Published var isLoading = false
     @Published var widgetType: WidgetType = WidgetType.cards
     @Published var playlistId: String?
-    @Published var playlist: PlaylistData?
-    @Published var mediaData: PlaylistMediaItem?
+    @Published var playlist: PlaylistDataWithProducts?
+    @Published var mediaData: PlaylistMediaItemWithProducts?
     @Published var handle = ""
 }
 
 
 extension WidgetViewModel {
-    func updatePlaylist(_ newPlaylist: PlaylistData?) {
+    func updatePlaylist(_ newPlaylist: PlaylistDataWithProducts?) {
         playlist = newPlaylist
     }
     
-    func updateMediaData(_ newMediaData: PlaylistMediaItem) {
+    func updateMediaData(_ newMediaData: PlaylistMediaItemWithProducts) {
         mediaData = newMediaData
     }
 }

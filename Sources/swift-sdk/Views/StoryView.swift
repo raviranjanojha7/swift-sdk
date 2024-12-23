@@ -38,7 +38,7 @@ public struct StoryView: View {
         ScrollView(.horizontal, showsIndicators: false) {
             LazyHStack(spacing: 20) {
                 if let media = viewModel.playlist?.media {
-                    ForEach(Array(media.enumerated()), id: \.element) { index, mediaItem in
+                    ForEach(Array(media.enumerated()), id: \.offset) { index, mediaItem in
                         storyContent(for: mediaItem, mediaIndex: index)
                             .id("\(mediaItem.media?.id ?? "")-\(index)")
                     }
@@ -49,7 +49,7 @@ public struct StoryView: View {
     }
     
     
-    private func storyContent(for mediaItem: PlaylistMediaItem, mediaIndex: Int) -> some View {
+    private func storyContent(for mediaItem: PlaylistMediaItemWithProducts, mediaIndex: Int) -> some View {
         Group {
             if mediaItem.type == .media {
                 StoryItemView(mediaItem: mediaItem, mediaIndex: mediaIndex , viewModel: viewModel)
@@ -59,7 +59,7 @@ public struct StoryView: View {
         }
     }
     
-    private func groupContent(for mediaItem: PlaylistMediaItem, mediaIndex: Int) -> some View {
+    private func groupContent(for mediaItem: PlaylistMediaItemWithProducts, mediaIndex: Int) -> some View {
         StoryItemView(
             mediaItem: PlaylistMediaItem(
                 type: .media,
@@ -92,7 +92,7 @@ public struct StoryView: View {
 
 // Keep the existing StoryItemView implementation unchanged
 private struct StoryItemView: View {
-    let mediaItem: PlaylistMediaItem
+    let mediaItem: PlaylistMediaItemWithProducts
     let mediaIndex: Int;
     @ObservedObject var viewModel: WidgetViewModel
     @ObservedObject private var global = Global.shared

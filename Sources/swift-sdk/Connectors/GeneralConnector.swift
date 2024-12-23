@@ -25,8 +25,7 @@ class GeneralConnector: BaseConnector {
         self.cdn = cdn
     }
     
-    func getPlaylistData(playlistId: String) async throws -> PlaylistData {
-        
+    func getPlaylistData(playlistId: String) async throws -> PlaylistDataWithProducts {
         let urlString = "https://zany-calm-energy.glitch.me/data-grouped"
         
         guard let url = URL(string: urlString) else {
@@ -36,7 +35,8 @@ class GeneralConnector: BaseConnector {
         do {
             let response = try await NetworkManager.shared.fetchData(from: url, as: PlaylistResponse.self)
             
-            guard let playlistObj = try? JSONDecoder().decode(PlaylistData.self, from: Data(response.playlist.utf8)) else {
+            // Decode initial playlist without products
+            guard let playlistObj = try? JSONDecoder().decode(PlaylistDataWithoutProducts.self, from: Data(response.playlist.utf8)) else {
                 throw APIError.invalidData
             }
             
@@ -51,17 +51,30 @@ class GeneralConnector: BaseConnector {
                 settingsObj = decoded
             }
             
-            
-            // Transform the playlist
-            let transformedMedia = playlistObj.media.map { mediaItem -> PlaylistMediaItem in
+            // Collect all media items for product fetching
+            var allMedia: [PlaylistMedia<ProductReference>] = []
+            playlistObj.media.forEach { mediaItem in
                 switch mediaItem.type {
                 case .media:
                     if let media = mediaItem.media {
-                        // Create new media with updated URLs
-                        let transformedMedia = PlaylistMedia(
+                        allMedia.append(media)
+                    }
+                case .group:
+                    if let group = mediaItem.group {
+                        allMedia.append(contentsOf: group.medias)
+                    }
+                }
+            }
+            
+            // Transform the media items (for now with empty products)
+            let transformedMedia = playlistObj.media.map { mediaItem -> PlaylistMediaItem<PlaylistMedia<MediaProduct>> in
+                switch mediaItem.type {
+                case .media:
+                    if let media = mediaItem.media {
+                        let transformedMedia = PlaylistMedia<MediaProduct>(
                             id: media.id,
                             filename: media.filename,
-                            products: media.products,
+                            products: [],  // Empty products for now
                             files: media.files,
                             storytitle: media.storytitle,
                             storysubtitle: media.storysubtitle,
@@ -80,16 +93,15 @@ class GeneralConnector: BaseConnector {
                             media: transformedMedia
                         )
                     }
-                    return mediaItem
+                    return PlaylistMediaItem(type: mediaItem.type, group: nil, media: nil)
                     
                 case .group:
                     if let group = mediaItem.group {
-                        // Transform each media in the group
                         let transformedMedias = group.medias.map { media in
-                            PlaylistMedia(
+                            PlaylistMedia<MediaProduct>(
                                 id: media.id,
                                 filename: media.filename,
-                                products: media.products,
+                                products: [],  // Empty products for now
                                 files: media.files,
                                 storytitle: media.storytitle,
                                 storysubtitle: media.storysubtitle,
@@ -103,7 +115,6 @@ class GeneralConnector: BaseConnector {
                             )
                         }
                         
-                        // Create new group with transformed medias
                         let transformedGroup = PlaylistMediaGroup(
                             id: group.id,
                             hidden: group.hidden,
@@ -121,11 +132,11 @@ class GeneralConnector: BaseConnector {
                             media: nil
                         )
                     }
-                    return mediaItem
+                    return PlaylistMediaItem(type: mediaItem.type, group: nil, media: nil)
                 }
             }
             
-            // Create new PlaylistData with all transformed components
+            // Create new PlaylistData with transformed components
             return PlaylistData(
                 id: playlistObj.id,
                 media: transformedMedia,
