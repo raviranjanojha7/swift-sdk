@@ -89,7 +89,7 @@ public struct OverlayCardView: View {
                         OverlayProductInformation(product: product)
                     }
                 }
-                .padding(.bottom, 48)
+                .padding(.bottom, 30)
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)

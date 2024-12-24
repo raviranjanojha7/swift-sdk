@@ -53,106 +53,7 @@ public struct CardView: View {
         Button(action: {
             handleCardTap(index: mediaIndex)
         }) {
-            ZStack(alignment: .top) {
-                // Main Card Content
-                VStack(spacing: 0) {
-                    // Media Content
-                    cardContent(for: mediaItem)
-                        .frame(width: 153, height: 271)
-                    
-                    // Product Info Section (without image)
-                    if let product = getFirstProduct(from: mediaItem) {
-                        VStack(alignment: .center, spacing: 8) {
-                            // Add spacing for the overlapping image
-                            Spacer()
-                                .frame(height: 30)
-                            
-                            Text(product.title.split(separator: "|").first?.trimmingCharacters(in: .whitespaces) ?? product.title)
-                                .font(.system(size: 12, weight: .bold))
-                                .lineLimit(1)
-                                .foregroundColor(.black)
-                            
-                            HStack(spacing: 4) {
-                                Text("₹\(product.price_min)")
-                                    .font(.system(size: 12, weight: .bold))
-                                    .foregroundColor(.black)
-                                
-                                if let comparePrice = Double(product.compare_at_price_max_number),
-                                   let price = Double(product.price_min),
-                                   comparePrice > 0 {
-                                    Text("₹\(product.compare_at_price_max_number)")
-                                        .font(.system(size: 10))
-                                        .strikethrough()
-                                        .foregroundColor(.gray)
-                                    
-                                    let discount = Int(((comparePrice - price) / comparePrice) * 100)
-                                    Text("\(discount)% off")
-                                        .font(.system(size: 10))
-                                        .foregroundColor(.green)
-                                }
-                            }
-                        }
-                        .padding(8)
-                        .frame(width: 153)
-                    }
-                }
-                .frame(width: 153, height: 360)
-                .background(Color.white)
-                .clipShape(RoundedRectangle(cornerRadius: 12))
-                
-                // Overlapping Product Image
-                if let product = getFirstProduct(from: mediaItem) {
-                    AsyncImage(url: URL(string: product.images.first?.url ?? "")) { image in
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                    } placeholder: {
-                        Color.gray
-                    }
-                    .frame(width: 40, height: 40)
-                    .background(Color.white)
-                    .offset(y: 251) // 271 - 30 to overlap
-                }
-            }
-            .shadow(radius: 5)
-        }
-    }
-    
-    private func getFirstProduct(from mediaItem: PlaylistMediaItemWithProducts) -> MediaProduct? {
-        switch mediaItem.type {
-        case .media:
-            return mediaItem.media?.products.first
-        case .group:
-            return mediaItem.group?.medias.first?.products.first
-        }
-    }
-    
-    private func cardContent(for mediaItem: PlaylistMediaItemWithProducts) -> some View {
-        Group {
-            if mediaItem.type == .media {
-                CardItemView(mediaItem: mediaItem, viewModel: viewModel)
-                    .frame(width: 153, height: 271)
-            } else if mediaItem.type == .group {
-                groupContent(for: mediaItem)
-            }
-        }
-    }
-    
-    private func groupContent(for mediaItem: PlaylistMediaItemWithProducts) -> some View {
-        Group {
-            if let group = mediaItem.group, !group.medias.isEmpty {
-                CardItemView(
-                    mediaItem: PlaylistMediaItemWithProducts(
-                        type: .media,
-                        group: nil,
-                        media: group.medias[0]
-                    ),
-                    viewModel: viewModel
-                )
-                .frame(width: 153, height: 271)
-            } else {
-                EmptyView()
-            }
+            ProductCardLayout(mediaItem: mediaItem)
         }
     }
     
@@ -189,10 +90,158 @@ public struct CardView: View {
     }
 }
 
+private struct ProductCardLayout: View {
+    let mediaItem: PlaylistMediaItemWithProducts
+    
+    var body: some View {
+        ZStack(alignment: .top) {
+            MainProductCard(mediaItem: mediaItem)
+            ProductImageOverlay(product: getFirstProduct(from: mediaItem))
+        }
+        .shadow(radius: 1)
+    }
+    
+    private func getFirstProduct(from mediaItem: PlaylistMediaItemWithProducts) -> MediaProduct? {
+        switch mediaItem.type {
+        case .media:
+            return mediaItem.media?.products.first
+        case .group:
+            return mediaItem.group?.medias.first?.products.first
+        }
+    }
+}
+
+private struct MainProductCard: View {
+    let mediaItem: PlaylistMediaItemWithProducts
+    
+    var body: some View {
+        VStack(spacing: 0) {
+            cardContent(for: mediaItem)
+                .frame(width: 153, height: 271)
+            
+            if let product = getFirstProduct(from: mediaItem) {
+                ProductInfoSection(product: product)
+            }
+        }
+        .frame(width: 153, height: 360)
+        .background(Color.white)
+        .clipShape(RoundedRectangle(cornerRadius: 8))
+    }
+    
+    private func getFirstProduct(from mediaItem: PlaylistMediaItemWithProducts) -> MediaProduct? {
+        switch mediaItem.type {
+        case .media:
+            return mediaItem.media?.products.first
+        case .group:
+            return mediaItem.group?.medias.first?.products.first
+        }
+    }
+    
+    private func cardContent(for mediaItem: PlaylistMediaItemWithProducts) -> some View {
+        Group {
+            if mediaItem.type == .media {
+                CardItemView(mediaItem: mediaItem)
+                    .frame(width: 153, height: 271)
+            } else if mediaItem.type == .group {
+                groupContent(for: mediaItem)
+            }
+        }
+    }
+    
+    private func groupContent(for mediaItem: PlaylistMediaItemWithProducts) -> some View {
+        Group {
+            if let group = mediaItem.group, !group.medias.isEmpty {
+                CardItemView(
+                    mediaItem: PlaylistMediaItemWithProducts(
+                        type: .media,
+                        group: nil,
+                        media: group.medias[0]
+                    )
+                )
+                .frame(width: 153, height: 271)
+            } else {
+                EmptyView()
+            }
+        }
+    }
+}
+
+private struct ProductInfoSection: View {
+    let product: MediaProduct
+    
+    var body: some View {
+        VStack(alignment: .center, spacing: 8) {
+            Spacer()
+                .frame(height: 15)
+            
+            Text(product.title.split(separator: "|").first?.trimmingCharacters(in: .whitespaces) ?? product.title)
+                .font(.system(size: 12, weight: .bold))
+                .lineLimit(1)
+                .foregroundColor(.black)
+            
+            PriceDisplay(product: product)
+        }
+        .padding(8)
+        .frame(width: 153)
+        .background(Color.white)
+        .clipShape(CustomCornerShape(corners: [.bottomLeft, .bottomRight], radius: 4))
+    }
+}
+
+private struct PriceDisplay: View {
+    let product: MediaProduct
+    
+    var body: some View {
+        HStack(spacing: 4) {
+            Text("₹\(product.price_min)")
+                .font(.system(size: 12, weight: .bold))
+                .foregroundColor(.black)
+            
+            if let comparePrice = Double(product.compare_at_price_max_number),
+               let price = Double(product.price_min),
+               comparePrice > price {
+                Text("₹\(product.compare_at_price_max_number)")
+                    .font(.system(size: 10))
+                    .strikethrough()
+                    .foregroundColor(.gray)
+                
+                let discount = Int(((comparePrice - price) / comparePrice) * 100)
+                Text("\(discount)% off")
+                    .font(.system(size: 10))
+                    .foregroundColor(.green)
+            }
+        }
+    }
+}
+
+private struct ProductImageOverlay: View {
+    let product: MediaProduct?
+    
+    var body: some View {
+        if let product = product {
+            AsyncImage(url: URL(string: product.images.first?.url ?? "")) { image in
+                image
+                    .resizable()
+                    .aspectRatio(contentMode: .fill)
+                    .frame(width: 40, height: 40)
+                    .clipped()
+            } placeholder: {
+                Color.gray
+                    .frame(width: 40, height: 40)
+            }
+            .clipShape(RoundedRectangle(cornerRadius: 4))
+            .overlay(
+                RoundedRectangle(cornerRadius: 4)
+                    .stroke(Color.gray.opacity(0.2), lineWidth: 0.5)
+            )
+            .offset(y: 251)
+        }
+    }
+}
+
 // Separate view for individual card items
 private struct CardItemView: View {
     let mediaItem: PlaylistMediaItemWithProducts
-    @ObservedObject var viewModel: WidgetViewModel
     
     var body: some View {
         ZStack {
@@ -201,7 +250,7 @@ private struct CardItemView: View {
                     VideoPlayer(url: URL(string: videoUrl))
                         .aspectRatio(9/16, contentMode: .fill)
                         .frame(width: 153, height: 271)
-                        .clipShape(CustomCornerShape(corners: [.topLeft, .topRight], radius: 12))
+                        .clipShape(CustomCornerShape(corners: [.topLeft, .topRight], radius: 8))
                         .allowsHitTesting(false)
                 } else if let posterUrl = media.urls?.poster {
                     AsyncImage(url: URL(string: posterUrl)) { phase in
@@ -226,7 +275,7 @@ private struct CardItemView: View {
                         }
                     }
                     .frame(width: 153, height: 271)
-                    .clipShape(CustomCornerShape(corners: [.topLeft, .topRight], radius: 12))
+                    .clipShape(CustomCornerShape(corners: [.topLeft, .topRight], radius: 8))
                 }
             }
         }

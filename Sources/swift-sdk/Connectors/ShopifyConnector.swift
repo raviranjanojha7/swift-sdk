@@ -37,7 +37,7 @@ class ShopifyConnector: BaseConnector {
             guard let playlistField = response.data.metaobject.fields.first(where: { $0.key == "playlist" }),
                   let playlistJson = playlistField.value,
                   let playlistObj = try? JSONDecoder().decode(PlaylistDataWithoutProducts.self, from: Data(playlistJson.utf8)) else {
-                throw APIError.invalidData
+                throw APIError.cannotParse
             }
             
             // Collect all media items (both individual and from groups)
@@ -54,9 +54,11 @@ class ShopifyConnector: BaseConnector {
                     }
                 }
             }
+
             
             // Get product map using the new function
             let productMap = try await getMediaProductsDataMap(media: allMedia)
+
             
             // Transform the media items with product details
             let transformedMedia = playlistObj.media.map { mediaItem -> PlaylistMediaItem<PlaylistMedia<MediaProduct>> in

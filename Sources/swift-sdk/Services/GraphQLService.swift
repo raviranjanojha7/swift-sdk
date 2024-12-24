@@ -24,6 +24,27 @@ public class GraphQLService {
         request.setValue(accessToken, forHTTPHeaderField: "X-Shopify-Storefront-Access-Token")
         request.httpBody = try JSONEncoder().encode(requestBody)
         
-        return try await NetworkManager.shared.fetchData(with: request, as: T.self)
+        // Get raw data and response
+        let (data, response) = try await URLSession.shared.data(for: request)
+        
+        guard let httpResponse = response as? HTTPURLResponse,
+              (200...299).contains(httpResponse.statusCode) else {
+            throw APIError.invalidResponse
+        }
+        
+        // Parse into dictionary to handle null values
+        guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
+              var dataDict = json["data"] as? [String: Any] else {
+            throw APIError.invalidData
+        }
+        
+        // Filter out null values
+        dataDict = dataDict.filter { $0.value is [String: Any] }
+        let cleanJson = ["data": dataDict]
+        
+        // Re-encode the cleaned data
+        let cleanData = try JSONSerialization.data(withJSONObject: cleanJson)
+        let decoder = JSONDecoder()
+        return try decoder.decode(T.self, from: cleanData)
     }
 }

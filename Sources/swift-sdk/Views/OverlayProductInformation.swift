@@ -38,11 +38,17 @@ struct OverlayProductInformation: View {
                         .foregroundColor(.black)
                     
                     if let comparePrice = Double(product.compare_at_price_max_number),
-                       comparePrice > 0 {
+                       let price = Double(product.price_min),
+                       comparePrice > price {
                         Text("₹\(product.compare_at_price_max_number)")
                             .font(.system(size: 12))
                             .strikethrough()
                             .foregroundColor(.black)
+                            
+                        let discount = Int(((comparePrice - price) / comparePrice) * 100)
+                        Text("\(discount)% off")
+                            .font(.system(size: 12))
+                            .foregroundColor(.green)
                     }
                 }
             }
@@ -69,7 +75,7 @@ struct OverlayProductInformation: View {
         .padding(.bottom, 16)
         .sheet(isPresented: $showingProductSheet) {
             ProductDetailSheet(product: product)
-                .presentationDetents([.fraction(0.8)]) // Makes sheet cover 4/5 of screen
+                .presentationDetents([.fraction(0.8)])
         }
     }
 }
