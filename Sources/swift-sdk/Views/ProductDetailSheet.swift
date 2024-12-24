@@ -10,14 +10,21 @@ import SwiftUI
 struct ProductDetailSheet: View {
     let product: MediaProduct
     @Environment(\.dismiss) var dismiss
+    @ObservedObject var viewModel: OverlayViewModel
+    
+    // Computed property to get the current product to display
+    private var currentProduct: MediaProduct {
+        viewModel.selectedProduct ?? product
+    }
     
     var body: some View {
         NavigationView {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
+                    // Update image scroll view to use currentProduct
                     ScrollView(.horizontal, showsIndicators: false) {
                         HStack(spacing: 8) {
-                            ForEach(product.images, id: \.url) { image in
+                            ForEach(currentProduct.images, id: \.url) { image in
                                 AsyncImage(url: URL(string: image.url)) { image in
                                     image
                                         .resizable()
@@ -32,36 +39,73 @@ struct ProductDetailSheet: View {
                             }
                         }.padding(.leading, 5)
                     }
-                    
-                    // Product Info
-                    VStack(alignment: .leading, spacing: 14) {
-                        Text(product.title)
+
+                     VStack(alignment: .leading, spacing: 14) {
+                        Text(currentProduct.title)
                             .font(.system(size: 18, weight: .bold))
                         
                         HStack(spacing: 8) {
-                            Text("₹\(product.price_min)")
+                            Text("₹\(currentProduct.price_min)")
                                 .font(.system(size: 14, weight: .bold))
                             
-                            if let comparePrice = Double(product.compare_at_price_max_number),
-                               let price = Double(product.price_min),
+                            if let comparePrice = Double(currentProduct.compare_at_price_max_number),
+                               let price = Double(currentProduct.price_min),
                                comparePrice > price {
-                                Text("₹\(product.compare_at_price_max_number)")
+                                Text("₹\(currentProduct.compare_at_price_max_number)")
                                     .font(.system(size: 14))
                                     .strikethrough()
                                     .foregroundColor(.gray)
                                 
-                                let discount = Int(((comparePrice - Double(product.price_min)!) / comparePrice) * 100)
+                                let discount = Int(((comparePrice - price) / comparePrice) * 100)
                                 Text("\(discount)% off")
                                     .font(.system(size: 14))
                                     .foregroundColor(.green)
                             }
                         }
+                    }
+                    .padding(.horizontal)
+
+                    Rectangle()
+                        .fill(Color.gray.opacity(0.2))
+                        .frame(height: 4)
+                        .padding(.horizontal)
+                    
+                    // Product List Section
+                    if let playlist = viewModel.playlist,
+                       let currentMedia = playlist.media[safe: viewModel.activeIndex],
+                       let products = currentMedia.type == .media ? currentMedia.media?.products : currentMedia.group?.medias[viewModel.groupMediaIndex].products,
+                       products.count > 1 {
                         
                         VStack(alignment: .leading, spacing: 8) {
+                            Text("Selected Product")
+                                .font(.system(size: 14, weight: .bold))
+                            
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 12) {
+                                    ForEach(products, id: \.id) { item in
+                                        ProductThumbnail(
+                                            product: item,
+                                            isSelected: viewModel.selectedProduct?.id == item.id
+                                        ) {
+                                            viewModel.selectedProduct = item
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                        .padding(.horizontal)
+                    }
+
+                     Rectangle()
+                        .fill(Color.gray.opacity(0.2))
+                        .frame(height: 4)
+                        .padding(.horizontal)
+                    
+                    // Update product info to use currentProduct
+                    VStack(alignment: .leading, spacing: 14) {
                             Text("Description")
                                 .font(.system(size: 14, weight: .bold))
-                            ExpandableText(text: product.description)
-                        }
+                            ExpandableText(text: currentProduct.description)
                     }
                     .padding(.horizontal)
                 }
@@ -77,6 +121,7 @@ struct ProductDetailSheet: View {
                     }
                 }
             }
+            Spacer()
         }
     }
 }
@@ -111,6 +156,39 @@ struct ExpandableText: View {
                         .foregroundColor(.blue)
                 }
             }
+        }
+    }
+}
+
+// Add this new view for product thumbnails
+struct ProductThumbnail: View {
+    let product: MediaProduct
+    let isSelected: Bool
+    let onTap: () -> Void
+    
+    var body: some View {
+        Button(action: onTap) {
+            VStack(alignment: .leading, spacing: 4) {
+                AsyncImage(url: URL(string: product.images.first?.url ?? "")) { image in
+                    image
+                        .resizable()
+                        .aspectRatio(contentMode: .fill)
+                } placeholder: {
+                    Color.gray
+                }
+                .frame(width: 80, height: 80)
+                .clipShape(RoundedRectangle(cornerRadius: 8))
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(isSelected ? Color.black : Color.clear, lineWidth: 2)
+                )
+                
+                Text(product.title.split(separator: "|").first?.trimmingCharacters(in: .whitespaces) ?? product.title)
+                    .font(.system(size: 12))
+                    .lineLimit(1)
+                    .foregroundColor(.black)
+            }
+            .frame(width: 80)
         }
     }
 }

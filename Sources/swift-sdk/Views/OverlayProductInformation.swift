@@ -9,6 +9,7 @@ import SwiftUI
 
 struct OverlayProductInformation: View {
     let product: MediaProduct
+    @ObservedObject var viewModel: OverlayViewModel
     @State private var showingProductSheet = false
     
     var body: some View {
@@ -57,6 +58,7 @@ struct OverlayProductInformation: View {
             
             // Shop Now Button
             Button(action: {
+                viewModel.selectedProduct = product
                 showingProductSheet = true
             }) {
                 Text("Shop Now")
@@ -74,7 +76,7 @@ struct OverlayProductInformation: View {
         .padding(.horizontal, 16)
         .padding(.bottom, 16)
         .sheet(isPresented: $showingProductSheet) {
-            ProductDetailSheet(product: product)
+            ProductDetailSheet(product: product, viewModel: viewModel)
                 .presentationDetents([.fraction(0.8)])
         }
     }

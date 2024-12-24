@@ -91,7 +91,7 @@ public struct OverlayCardView: View {
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 0) {
                                     ForEach(products, id: \.id) { product in
-                                        OverlayProductInformation(product: product)
+                                        OverlayProductInformation(product: product, viewModel: viewModel)
                                             .frame(width: geometry.size.width * 0.95)
                                     }
                                 }
