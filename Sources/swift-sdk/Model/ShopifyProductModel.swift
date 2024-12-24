@@ -62,13 +62,6 @@ struct VariantNode: Codable {
     let nodes: [Variant]
 }
 
-struct ImageEdge: Codable {
-    let node: ProductImage
-}
-
-struct ImageConnection: Codable {
-    let edges: [ImageEdge]
-}
 
 public struct ShopifyProduct: Codable {
     let id: String
@@ -76,7 +69,7 @@ public struct ShopifyProduct: Codable {
     let handle: String
     let description: String
     let priceRange: PriceRange
-    let images: ImageConnection
+    let images: ImageNode
     
     // Optional fields
     let availableForSale: Bool?

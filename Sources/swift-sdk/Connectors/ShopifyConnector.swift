@@ -6,7 +6,7 @@
 //
 
 import Foundation
- 
+
 
 
 class ShopifyConnector: BaseConnector {
@@ -54,11 +54,11 @@ class ShopifyConnector: BaseConnector {
                     }
                 }
             }
-
+            
             
             // Get product map using the new function
             let productMap = try await getMediaProductsDataMap(media: allMedia)
-
+            
             
             // Transform the media items with product details
             let transformedMedia = playlistObj.media.map { mediaItem -> PlaylistMediaItem<PlaylistMedia<MediaProduct>> in
@@ -225,9 +225,9 @@ class ShopifyConnector: BaseConnector {
         // Iterate through the response.data dictionary
         for (_, shopifyProduct) in response.data {
             // Remove non-numeric characters from ID to match TypeScript implementation
-            let cleanId = shopifyProduct.id.replacingOccurrences(of: "[^0-9]", 
-                                                               with: "", 
-                                                               options: .regularExpression)
+            let cleanId = shopifyProduct.id.replacingOccurrences(of: "[^0-9]",
+                                                                 with: "",
+                                                                 options: .regularExpression)
             
             // Convert ShopifyProduct to MediaProduct
             let mediaProduct = try convertToMediaProduct(shopifyProduct)
@@ -247,16 +247,16 @@ class ShopifyConnector: BaseConnector {
         
         // Create dictionary for card_top_labels
         let cardTopLabels: [String: Any] = [:]
-
+        
         // Format images to match MediaProduct structure
-        let formattedImages = shopifyProduct.images.edges.map { edge -> [String: String] in
+        let formattedImages = shopifyProduct.images.nodes.map { node -> [String: String] in
             return [
-                "url": edge.node.url,
-                "altText": edge.node.altText ?? ""  // Add altText with empty string as default
+                "url": node.url,
+                "altText": node.altText ?? ""  // Add altText with empty string as default
             ]
         }
         
-
+        
         // Create the MediaProduct using decoder with optional handling
         let productDict: [String: Any] = [
             "available": shopifyProduct.availableForSale ?? false,
@@ -293,7 +293,7 @@ class ShopifyConnector: BaseConnector {
             "url": shopifyProduct.onlineStoreUrl ?? "",
             // "variants": productVariants
         ]
-
+        
         let jsonData = try JSONSerialization.data(withJSONObject: productDict)
         
         do {
@@ -321,38 +321,81 @@ enum ShopifyGQLQueries {
     static let EACH_PRODUCT_DETAILS = """
     node(id: $id) {
         ... on Product {
-            id
             title
-            handle
-            description
-            priceRange {
-                minVariantPrice {
-                    amount
-                    currencyCode
-                }
-                maxVariantPrice {
-                    amount
-                    currencyCode
-                }
-            }
-                compareAtPriceRange {
-                    minVariantPrice {
-                        amount
-                        currencyCode
-                    }
-                    maxVariantPrice {
-                        amount
-                        currencyCode
-                    }
-                }
-            images(first: 1) {
-                edges {
-                    node {
-                        url
-                    }
-                }
-            }
-            availableForSale
+                        description
+                        id
+                        compareAtPriceRange {
+                            maxVariantPrice {
+                                amount
+                                currencyCode
+                            }
+                            minVariantPrice {
+                                amount
+                                currencyCode
+                            }
+                        }
+                        description
+                        featuredImage {
+                            image_small: url(transform: { maxHeight: 200, maxWidth: 200 })
+                            image_large: url
+                        }
+                        handle
+                        id
+                        options(first: 20) {
+                            id
+                            values
+                            name
+                        }
+                        priceRange {
+                            maxVariantPrice {
+                                amount
+                                currencyCode
+                            }
+                            minVariantPrice {
+                                amount
+                                currencyCode
+                            }
+                        }
+                        tags
+                        title
+                        variants(first: 100) {
+                            nodes {
+                                id
+                                image {
+                                    url
+                                }
+                                selectedOptions {
+                                    name
+                                    value
+                                }
+                                sku
+                                title
+                                price {
+                                    amount
+                                    currencyCode
+                                }
+                                currentlyNotInStock
+                                availableForSale
+                                compareAtPrice {
+                                    amount
+                                    currencyCode
+                                }
+                                group: metafield(namespace: "color", key: "group") {
+                                    value
+                                }
+                            }
+                        }
+                        images(first: 25) {
+                            nodes {
+                                url
+                                altText
+                            }
+                        }
+                        availableForSale
+                        onlineStoreUrl
+                        quinn_description: metafield(namespace: "quinn", key: "description") {
+                            value
+                        }
         }
     }
     """

@@ -85,8 +85,20 @@ public struct OverlayCardView: View {
                     .padding(.horizontal, 16)
                     
                     // Product Information
-                    if let product = getFirstProduct() {
-                        OverlayProductInformation(product: product)
+                    let products = getAllProducts()
+                    if !products.isEmpty {
+                        GeometryReader { geometry in
+                            ScrollView(.horizontal, showsIndicators: false) {
+                                HStack(spacing: 0) {
+                                    ForEach(products, id: \.id) { product in
+                                        OverlayProductInformation(product: product)
+                                            .frame(width: geometry.size.width * 0.95)
+                                    }
+                                }
+                                .padding(.horizontal, products.count > 1 ? 0 : geometry.size.width * 0.025) // Center single product
+                            }
+                        }
+                        .frame(height: 100)
                     }
                 }
                 .padding(.bottom, 30)
@@ -182,16 +194,16 @@ public struct OverlayCardView: View {
         }
     }
     
-    private func getFirstProduct() -> MediaProduct? {
+    private func getAllProducts() -> [MediaProduct] {
         switch mediaItem.type {
         case .media:
-            return mediaItem.media?.products.first
+            return mediaItem.media?.products ?? []
         case .group:
             if let group = mediaItem.group {
                 let currentMedia = group.medias[viewModel.groupMediaIndex]
-                return currentMedia.products.first
+                return currentMedia.products
             }
-            return nil
+            return []
         }
     }
 }

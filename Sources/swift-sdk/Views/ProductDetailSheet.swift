@@ -15,30 +15,38 @@ struct ProductDetailSheet: View {
         NavigationView {
             ScrollView {
                 VStack(alignment: .leading, spacing: 16) {
-                    // Product Image
-                    AsyncImage(url: URL(string: product.images.first?.url ?? "")) { image in
-                        image
-                            .resizable()
-                            .aspectRatio(contentMode: .fit)
-                    } placeholder: {
-                        Color.gray
+                    ScrollView(.horizontal, showsIndicators: false) {
+                        HStack(spacing: 8) {
+                            ForEach(product.images, id: \.url) { image in
+                                AsyncImage(url: URL(string: image.url)) { image in
+                                    image
+                                        .resizable()
+                                        .aspectRatio(contentMode: .fill)
+                                        .frame(width: 232, height: 232)
+                                        .clipped()
+                                } placeholder: {
+                                    Color.gray
+                                        .frame(width: 232, height: 232)
+                                }
+                                .clipShape(RoundedRectangle(cornerRadius: 4))
+                            }
+                        }.padding(.leading, 5)
                     }
-                    .frame(maxWidth: .infinity)
-                    .frame(height: 300)
                     
                     // Product Info
-                    VStack(alignment: .leading, spacing: 12) {
+                    VStack(alignment: .leading, spacing: 14) {
                         Text(product.title)
-                            .font(.system(size: 20, weight: .bold))
+                            .font(.system(size: 18, weight: .bold))
                         
                         HStack(spacing: 8) {
                             Text("₹\(product.price_min)")
-                                .font(.system(size: 18, weight: .bold))
+                                .font(.system(size: 14, weight: .bold))
                             
                             if let comparePrice = Double(product.compare_at_price_max_number),
-                               comparePrice > 0 {
+                               let price = Double(product.price_min),
+                               comparePrice > price {
                                 Text("₹\(product.compare_at_price_max_number)")
-                                    .font(.system(size: 16))
+                                    .font(.system(size: 14))
                                     .strikethrough()
                                     .foregroundColor(.gray)
                                 
@@ -49,9 +57,11 @@ struct ProductDetailSheet: View {
                             }
                         }
                         
-                        Text(product.description)
-                            .font(.system(size: 14))
-                            .foregroundColor(.gray)
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text("Description")
+                                .font(.system(size: 14, weight: .bold))
+                            ExpandableText(text: product.description)
+                        }
                     }
                     .padding(.horizontal)
                 }
@@ -71,6 +81,38 @@ struct ProductDetailSheet: View {
     }
 }
 
-//#Preview {
-//    ProductDetailSheet(product: MediaProduct(id: 1, title: "Sample Product", price_min: 100, compare_at_price_max_number: 150, description: "This is a sample product description.", images: [MediaImage(id: 1, url: "https://example.com/image1.jpg")]))
-//}
+struct ExpandableText: View {
+    let text: String
+    @State private var isExpanded = false
+    @State private var isTruncated = false
+    
+    var body: some View {
+        VStack(alignment: .leading, spacing: 4) {
+            Text(text)
+                .font(.system(size: 12))
+                .lineLimit(isExpanded ? nil : 4)
+                .background(
+                    GeometryReader { geometry in
+                        Color.clear.onAppear {
+                            let totalLines = Int(geometry.size.height / 14) 
+                            self.isTruncated = totalLines > 3
+                        }
+                    }
+                )
+            
+            if isTruncated {
+                Button(action: {
+                    withAnimation {
+                        isExpanded.toggle()
+                    }
+                }) {
+                    Text(isExpanded ? "Read less" : "Read more")
+                        .font(.system(size: 12))
+                        .foregroundColor(.blue)
+                }
+            }
+        }
+    }
+}
+
+

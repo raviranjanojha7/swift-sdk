@@ -80,6 +80,3 @@ struct OverlayProductInformation: View {
     }
 }
 
-//#Preview {
-//    OverlayProductInformation(product: MediaProduct(title: "Product Title", price_min: "100", compare_at_price_max_number: "150"))
-//}
