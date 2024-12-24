@@ -38,7 +38,7 @@ struct MediaProduct: Codable, @unchecked Sendable {
     let swatches_data_formatted: [String: [SwatchData]]
     let title: String
     let url: String
-//    let variants: [ProductVariant]
+    let variants: [ProductVariant]
     
     enum CodingKeys: String, CodingKey {
         case available
@@ -103,7 +103,7 @@ struct MediaProduct: Codable, @unchecked Sendable {
         self.swatches_data_formatted = try container.decode([String: [SwatchData]].self, forKey: .swatches_data_formatted)
         self.title = try container.decode(String.self, forKey: .title)
         self.url = try container.decode(String.self, forKey: .url)
-//        self.variants = try container.decode([ProductVariant].self, forKey: .variants)
+        self.variants = try container.decode([ProductVariant].self, forKey: .variants)
     }
     
     func encode(to encoder: Encoder) throws {
@@ -142,7 +142,7 @@ struct MediaProduct: Codable, @unchecked Sendable {
         try container.encode(swatches_data_formatted, forKey: .swatches_data_formatted)
         try container.encode(title, forKey: .title)
         try container.encode(url, forKey: .url)
-//        try container.encode(variants, forKey: .variants)
+        try container.encode(variants, forKey: .variants)
     }
 }
 

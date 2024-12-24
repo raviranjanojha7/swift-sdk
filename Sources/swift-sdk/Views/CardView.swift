@@ -82,6 +82,7 @@ public struct CardView: View {
             let connector = try getConnector()
             Task {
                 let playlist = try await connector.getPlaylistData(playlistId: playlistId)
+                // print("Playlist: \(String(describing: playlist))")
                 viewModel.updatePlaylist(playlist)
             }
         } catch {

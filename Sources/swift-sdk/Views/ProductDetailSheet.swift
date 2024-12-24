@@ -94,12 +94,14 @@ struct ProductDetailSheet: View {
                             }
                         }
                         .padding(.horizontal)
+                        
+                        Rectangle()
+                           .fill(Color.gray.opacity(0.2))
+                           .frame(height: 4)
+                           .padding(.horizontal)
                     }
 
-                     Rectangle()
-                        .fill(Color.gray.opacity(0.2))
-                        .frame(height: 4)
-                        .padding(.horizontal)
+
                     
                     // Update product info to use currentProduct
                     VStack(alignment: .leading, spacing: 14) {

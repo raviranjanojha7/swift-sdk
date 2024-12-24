@@ -291,7 +291,7 @@ class ShopifyConnector: BaseConnector {
             "swatches_data_formatted": swatchesDataFormatted,
             "title": shopifyProduct.title,
             "url": shopifyProduct.onlineStoreUrl ?? "",
-            // "variants": productVariants
+             "variants": productVariants
         ]
         
         let jsonData = try JSONSerialization.data(withJSONObject: productDict)
