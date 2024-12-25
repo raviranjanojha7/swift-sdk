@@ -178,7 +178,7 @@ struct MediaProductImage: Codable, Sendable {
     let url: String
 }
 
-struct ProductOptionWithValues: Codable, Sendable {
+struct ProductOptionWithValues: Codable, Sendable, Identifiable {
     let id: String
     let name: String
     let values: [String]

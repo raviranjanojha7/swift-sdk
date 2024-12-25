@@ -120,6 +120,8 @@ private struct MainProductCard: View {
             cardContent(for: mediaItem)
                 .frame(width: 153, height: 271)
             
+            Spacer()
+            
             if let product = getFirstProduct(from: mediaItem) {
                 ProductInfoSection(product: product)
             }
@@ -226,6 +228,7 @@ private struct ProductImageOverlay: View {
                     .aspectRatio(contentMode: .fill)
                     .frame(width: 40, height: 40)
                     .clipped()
+                    .background(Color.white)
             } placeholder: {
                 Color.gray
                     .frame(width: 40, height: 40)

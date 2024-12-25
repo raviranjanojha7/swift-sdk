@@ -48,7 +48,7 @@ struct VariantSelectedOption: Codable {
 
 struct Variant: Codable {
     let availableForSale: Bool
-    let compareAtPrice: Price
+    let compareAtPrice: Price?
     let currentlyNotInStock: Bool
     let id: String
     let image: ProductImage

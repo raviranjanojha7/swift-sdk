@@ -173,8 +173,7 @@ class ShopifyConnector: BaseConnector {
             let requestBody = GraphQLRequestBody(query: queryBuilder, variables: [:])
             
             // Make the request
-            let response: ShopifyProductsResponse = try await graphQLService.query(requestBody)
-            
+            let response: ShopifyProductsResponse = try await graphQLService.query(requestBody)            
             
             return response
             

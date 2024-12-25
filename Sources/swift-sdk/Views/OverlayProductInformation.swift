@@ -33,10 +33,11 @@ struct OverlayProductInformation: View {
                     .lineLimit(1)
                     .foregroundColor(.black)
                 
-                HStack(spacing: 4) {
+                HStack(spacing: 8) {
                     Text("₹\(product.price_min)")
                         .font(.system(size: 14, weight: .bold))
                         .foregroundColor(.black)
+                        .fixedSize(horizontal: true, vertical: false)
                     
                     if let comparePrice = Double(product.compare_at_price_max_number),
                        let price = Double(product.price_min),
@@ -45,14 +46,17 @@ struct OverlayProductInformation: View {
                             .font(.system(size: 12))
                             .strikethrough()
                             .foregroundColor(.black)
+                            .fixedSize(horizontal: true, vertical: false)
                             
                         let discount = Int(((comparePrice - price) / comparePrice) * 100)
                         Text("\(discount)% off")
                             .font(.system(size: 12))
                             .foregroundColor(.green)
+                            .fixedSize(horizontal: true, vertical: false)
                     }
                 }
             }
+            .frame(maxWidth: .infinity, alignment: .leading)
             
             Spacer()
             

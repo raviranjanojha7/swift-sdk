@@ -46,7 +46,7 @@ struct ProductInfoView: View {
                 
                 if let discount = discountPercentage {
                     Text("\(discount)% off")
-                        .font(.system(size: 10))
+                        .font(.system(size: 12))
                         .foregroundColor(.green)
                 }
             }

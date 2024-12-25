@@ -32,6 +32,9 @@ public class GraphQLService {
             throw APIError.invalidResponse
         }
         
+        // if let jsonString = String(data: data, encoding: .utf8) {
+        //     print("Response JSON:", jsonString)
+        // }
         
         // Parse into dictionary to handle null values
         guard let json = try JSONSerialization.jsonObject(with: data) as? [String: Any],
