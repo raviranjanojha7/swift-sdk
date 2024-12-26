@@ -118,7 +118,7 @@ private struct ProductInfoSection: View {
             Text(currentProduct.title)
                 .font(.system(size: 18, weight: .bold))
             
-            PriceView(currentProduct: currentProduct)
+            PriceView(currentProduct: currentProduct, viewModel: viewModel)
             
             if !currentProduct.options_with_values.isEmpty {
                 let options = currentProduct.options_with_values.map { option in
@@ -139,16 +139,33 @@ private struct ProductInfoSection: View {
 
 private struct PriceView: View {
     let currentProduct: MediaProduct
+    @ObservedObject var viewModel: OverlayViewModel
+    
+    private var priceToShow: String {
+        if let variant = viewModel.selectedVariant,
+           !variant.price.isEmpty {
+            return variant.price
+        }
+        return currentProduct.price_min
+    }
+    
+    private var comparePriceToShow: String {
+        if let variant = viewModel.selectedVariant,
+           !variant.compare_at_price.isEmpty {
+            return variant.compare_at_price
+        }
+        return currentProduct.compare_at_price_max_number
+    }
     
     var body: some View {
         HStack(spacing: 8) {
-            Text("₹\(currentProduct.price_min)")
+            Text("₹\(priceToShow)")
                 .font(.system(size: 14, weight: .bold))
             
-            if let comparePrice = Double(currentProduct.compare_at_price_max_number),
-               let price = Double(currentProduct.price_min),
+            if let comparePrice = Double(comparePriceToShow),
+               let price = Double(priceToShow),
                comparePrice > price {
-                Text("₹\(currentProduct.compare_at_price_max_number)")
+                Text("₹\(comparePriceToShow)")
                     .font(.system(size: 14))
                     .strikethrough()
                     .foregroundColor(.gray)
