@@ -82,7 +82,10 @@ public struct CardView: View {
             let connector = try getConnector()
             Task {
                 let playlist = try await connector.getPlaylistData(playlistId: playlistId)
-                // print("Playlist: \(String(describing: playlist))")
+                 if let jsonData = try? JSONEncoder().encode(playlist),
+                    let jsonString = String(data: jsonData, encoding: .utf8) {
+//                     print("Playlist JSON: \(jsonString)")
+                 }
                 viewModel.updatePlaylist(playlist)
             }
         } catch {

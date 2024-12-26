@@ -18,16 +18,60 @@ struct ProductDetailSheet: View {
     
     var body: some View {
         NavigationView {
-            ScrollView {
-                VStack(alignment: .leading, spacing: 16) {
-                    ProductImagesSection(currentProduct: currentProduct)
-                    ProductInfoSection(currentProduct: currentProduct)
+            ZStack(alignment: .bottom) {
+                // Main scrolling content
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 16) {
+                        ProductImagesSection(currentProduct: currentProduct)
+                        ProductInfoSection(currentProduct: currentProduct, viewModel: viewModel)
+                        Divider()
+                            .background(Color.gray.opacity(0.2))
+                            .frame(height: 4)
+                            .padding(.horizontal)
+                        ProductListSection(viewModel: viewModel)
+                        ProductDescriptionSection(currentProduct: currentProduct)
+                    }
+                    // Add padding at bottom to account for button height
+                    .padding(.bottom, 80)
+                }
+                
+                // Sticky bottom buttons
+                VStack {
                     Divider()
-                        .background(Color.gray.opacity(0.2))
-                        .frame(height: 4)
-                        .padding(.horizontal)
-                    ProductListSection(viewModel: viewModel)
-                    ProductDescriptionSection(currentProduct: currentProduct)
+                    HStack(spacing: 16) {
+                        Button(action: {
+                            // Add to cart action
+                        }) {
+                            Text("Buy Now")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.black)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 12)
+                                .background(Color.white)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: 8)
+                                        .stroke(Color.black, lineWidth: 1)
+                                )
+                        }
+                        
+                        Button(action: {
+                            // Buy now action
+                        }) {
+                            Text("Add to cart")
+                                .font(.system(size: 14, weight: .medium))
+                                .foregroundColor(.white)
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 12)
+                                .background(Color.black)
+                                .cornerRadius(8)
+                        }
+                    }
+                    .padding(.horizontal, 16)
+                    .padding(.vertical, 12)
+                    .background(
+                        Color.white
+                            .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: -2)
+                    )
                 }
             }
             .navigationBarTitleDisplayMode(.inline)
@@ -67,6 +111,7 @@ private struct ProductImagesSection: View {
 
 private struct ProductInfoSection: View {
     let currentProduct: MediaProduct
+    @ObservedObject var viewModel: OverlayViewModel
     
     var body: some View {
         VStack(alignment: .leading, spacing: 14) {
@@ -84,7 +129,7 @@ private struct ProductInfoSection: View {
                     )
                 }
                 
-                ProductOptionsView(options: options)
+                ProductOptionsView(options: options, variants: currentProduct.variants, viewModel: viewModel)
                     .padding(.top, 8)
             }
         }

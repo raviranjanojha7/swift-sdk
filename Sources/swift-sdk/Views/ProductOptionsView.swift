@@ -9,6 +9,8 @@ import SwiftUI
 
 struct ProductOptionsView: View {
     let options: [ProductOptionWithValues]
+    let variants: [ProductVariant]
+    @ObservedObject var viewModel: OverlayViewModel
     @State private var selectedValues: [String: String] = [:]
     
     var body: some View {
@@ -22,6 +24,7 @@ struct ProductOptionsView: View {
                         ForEach(option.values, id: \.self) { value in
                             Button(action: {
                                 selectedValues[option.name] = value
+                                updateSelectedVariant()
                             }) {
                                 Text(value)
                             }
@@ -41,6 +44,20 @@ struct ProductOptionsView: View {
                 }
             }
         }
+    }
+    
+    private func updateSelectedVariant() {
+        // Find variant that matches all selected options
+        let matchingVariant = variants.first { variant in
+            // For now we're only checking option1 since that's what's in the sample data
+            // You might need to check option2, option3 etc. based on your full data structure
+            if let selectedValue = selectedValues[options[0].name] {
+                return variant.option1 == selectedValue
+            }
+            return false
+        }
+        print(matchingVariant)
+        viewModel.selectedVariant = matchingVariant
     }
 }
 

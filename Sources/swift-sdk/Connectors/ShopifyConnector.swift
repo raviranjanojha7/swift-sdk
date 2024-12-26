@@ -256,7 +256,25 @@ class ShopifyConnector: BaseConnector {
         }
         
         
-        // Create the MediaProduct using decoder with optional handling
+        // Transform Shopify variants to MediaProduct variants
+        let transformedVariants: [[String: Any]] = shopifyProduct.variants?.nodes.map { variant in
+            return [
+                "attribute_id": "",
+                "available": variant.availableForSale,
+                "compare_at_price": variant.compareAtPrice?.amount ?? "0.0",
+                "compare_at_price_number": variant.compareAtPrice?.amount ?? "0.0",
+                "featured_image": variant.image.url,
+                "id": variant.id,
+                "option1": variant.selectedOptions.first?.value ?? "",
+                "price": variant.price.amount,
+                "price_number": variant.price.amount,
+                "sku": variant.sku,
+                "title": variant.title,
+                "value_index": ""
+            ]
+        } ?? []
+        
+        // Create the MediaProduct dictionary
         let productDict: [String: Any] = [
             "available": shopifyProduct.availableForSale ?? false,
             "card_top_labels": cardTopLabels,
@@ -271,7 +289,7 @@ class ShopifyConnector: BaseConnector {
             "featured_image_large": shopifyProduct.featuredImage?.image_large ?? "",
             "handle": shopifyProduct.handle,
             "id": shopifyProduct.id,
-            "images": formattedImages,
+             "images": formattedImages,
             "options": shopifyProduct.options?.map { $0.name } ?? [],
             "options_with_values": shopifyProduct.options?.map { [
                 "id": $0.id,
@@ -290,7 +308,7 @@ class ShopifyConnector: BaseConnector {
             "swatches_data_formatted": swatchesDataFormatted,
             "title": shopifyProduct.title,
             "url": shopifyProduct.onlineStoreUrl ?? "",
-             "variants": productVariants
+            "variants": transformedVariants
         ]
         
         let jsonData = try JSONSerialization.data(withJSONObject: productDict)
