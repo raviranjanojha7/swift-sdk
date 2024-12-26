@@ -246,110 +246,39 @@ struct Promise<T> {
 }
 
 
-protocol QuinnFunctions {
-    func shareProduct(message: String, url: String)
-    func parseReviews(reviewData: [String: Any]) -> ReviewsPayload
-    func getReviews(product: [String: Any], page: Int, limit: Int?, apiKey: String?) async throws -> [String: Any]
-    func openOverlay(payload: OpenOverlayAction)
-    func closeOverlay()
-    func setupOverlay(payload: SetupOverlay)
-    func redirectToProduct(product: MediaProduct)
-    func overlayInfoToggle(mediaKey: String)
-    func addToCart(payload: AddToCart) async throws -> ShopifyCart?
-    func openCartDrawer()
-    func updateAppCart(cart: ShopifyCart?) async throws -> ShopifyCart?
-    func showFullPageLoader()
-    func hideFullPageLoader()
-    func hideElements()
-    func unhideElements()
-    func redirectToPage(pageId: String)
-    func getProductsById(ids: [String]) async throws -> [StorefrontProduct?]
+public struct ProductAndVariant {
+    public let product: MediaProduct?
+    public let variant: ProductVariant?
+    
+    public init(product: MediaProduct?, variant: ProductVariant?) {
+        self.product = product
+        self.variant = variant
+    }
 }
 
-struct ReviewsPayload {
-    let reviews: [Any]
-    let reviewCount: Int
-    let avgRating: Double
+public protocol QuinnFunctions {
+    func redirectToProduct(payload: ProductAndVariant)
+    func addToCart(payload: ProductAndVariant) async throws
 }
-
-struct OpenOverlayAction {
-    let initialIndex: Int
-    let handle: String?
-    let widgetType: WidgetType
-    let playlistId: String?
-    let onClose: (() -> Void)?
-    let chunkId: String?
-}
-
-struct SetupOverlay {
-    let playlist: PlaylistDataWithProducts
-    let index: Int
-    let type: WidgetType
-    let onClose: () -> Void
-}
-
-struct AddToCart {
-    let product: MediaProduct
-    let variant: ProductVariant
-    let mediaKey: String
-}
-
 
 public class DefaultQuinnFunctions: QuinnFunctions {
-    func shareProduct(message: String, url: String) {
+    private let addToCartHandler: (ProductAndVariant) async throws -> Void
+    private let redirectToProductHandler: (ProductAndVariant) -> Void
+    
+    init(
+        addToCart: @escaping (ProductAndVariant) async throws -> Void = { _ in },
+        redirectToProduct: @escaping (ProductAndVariant) -> Void = { _ in }
+    ) {
+        self.addToCartHandler = addToCart
+        self.redirectToProductHandler = redirectToProduct
     }
     
-    func parseReviews(reviewData: [String: Any]) -> ReviewsPayload {
-        return ReviewsPayload(reviews: [], reviewCount: 0, avgRating: 0.0)
+    public func redirectToProduct(payload: ProductAndVariant) {
+        redirectToProductHandler(payload)
     }
     
-    func getReviews(product: [String: Any], page: Int, limit: Int? = nil, apiKey: String? = nil) async throws -> [String: Any] {
-        return [:]
-    }
-    
-    func openOverlay(payload: OpenOverlayAction) {
-    }
-    
-    func closeOverlay() {
-    }
-    
-    func setupOverlay(payload: SetupOverlay) {
-    }
-    
-    func redirectToProduct(product: MediaProduct) {
-    }
-    
-    func overlayInfoToggle(mediaKey: String) {
-    }
-    
-    func addToCart(payload: AddToCart) async throws -> ShopifyCart? {
-        return nil
-    }
-    
-    func openCartDrawer() {
-    }
-    
-    func updateAppCart(cart: ShopifyCart? = nil) async throws -> ShopifyCart? {
-        return nil
-    }
-    
-    func showFullPageLoader() {
-    }
-    
-    func hideFullPageLoader() {
-    }
-    
-    func hideElements() {
-    }
-    
-    func unhideElements() {
-    }
-    
-    func redirectToPage(pageId: String) {
-    }
-    
-    func getProductsById(ids: [String]) async throws -> [StorefrontProduct?] {
-        return []
+    public func addToCart(payload: ProductAndVariant) async throws {
+        try await addToCartHandler(payload)
     }
 }
 

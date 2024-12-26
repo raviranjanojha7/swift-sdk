@@ -56,7 +56,6 @@ struct ProductOptionsView: View {
             }
             return false
         }
-        print(matchingVariant)
         viewModel.selectedVariant = matchingVariant
     }
 }

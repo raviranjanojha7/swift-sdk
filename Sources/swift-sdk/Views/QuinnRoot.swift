@@ -16,18 +16,25 @@ public struct QuinnRoot<Content: View>: View {
         cdn: String,
         shopDomain: String,
         shopType: ShopType = .shopify,
+        addToCart: @escaping (ProductAndVariant) async throws -> Void = { _ in },
+        redirectToProduct: @escaping (ProductAndVariant) -> Void = { _ in },
         @ViewBuilder content: () -> Content
     ) {
         self.content = content()
         
         if global.quinn == nil {
+            let functions = DefaultQuinnFunctions(
+                addToCart: addToCart,
+                redirectToProduct: redirectToProduct
+            )
+            
             global.quinn = Quinn(
                 sft: sft,
                 cdn: cdn,
                 shopDomain: shopDomain,
                 shopType: shopType,
                 apiCache: [:],
-                functions: DefaultQuinnFunctions(),
+                functions: functions,
                 currencySymbol: "₹",
                 settings: QuinnSettings(),
                 appId: "5905719",

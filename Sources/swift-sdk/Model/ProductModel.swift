@@ -9,7 +9,7 @@ import Foundation
 
 
 
-struct MediaProduct: Codable, @unchecked Sendable {
+public struct MediaProduct: Codable, @unchecked Sendable {
     let card_top_labels: [String: Any]?
     let available: Bool
     let compare_at_price: String
@@ -67,7 +67,7 @@ struct MediaProduct: Codable, @unchecked Sendable {
         case title, url, variants
     }
     
-    init(from decoder: Decoder) throws {
+    public init(from decoder: Decoder) throws {
         let container = try decoder.container(keyedBy: CodingKeys.self)
         
         if let cardTopLabelsData = try? container.decodeIfPresent(Data.self, forKey: .card_top_labels) {
@@ -106,7 +106,7 @@ struct MediaProduct: Codable, @unchecked Sendable {
         self.variants = try container.decode([ProductVariant].self, forKey: .variants)
     }
     
-    func encode(to encoder: Encoder) throws {
+    public func encode(to encoder: Encoder) throws {
         var container = encoder.container(keyedBy: CodingKeys.self)
         
         try container.encode(available, forKey: .available)
@@ -146,7 +146,7 @@ struct MediaProduct: Codable, @unchecked Sendable {
     }
 }
 
-struct ProductVariant: Codable, Sendable {
+public struct ProductVariant: Codable, Sendable {
     let attribute_id: String
     let available: Bool
     let compare_at_price: String

@@ -24,7 +24,13 @@ public struct MainView: View {
             sft: "44a96721cac4ae4138b4e3598cfdea12",
             cdn: "//cdn.shopify.com/s/files/1/0057/8938/4802/files/",
             shopDomain: "boatlifestylein.myshopify.com",
-            shopType: .shopify
+            shopType: .shopify,
+            addToCart: { productAndVariant in
+                print("addToCart: \(productAndVariant)")
+            },
+            redirectToProduct: { productAndVariant in
+                print("redirectToProduct: \(productAndVariant)")
+            }
         ) {
             NavigationStack {
                 ScrollView(.vertical, showsIndicators: false) {

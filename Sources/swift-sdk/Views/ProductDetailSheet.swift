@@ -16,6 +16,13 @@ struct ProductDetailSheet: View {
         viewModel.selectedProduct ?? product
     }
     
+    private var isProductAvailable: Bool {
+        if let selectedVariant = viewModel.selectedVariant {
+            return currentProduct.available && selectedVariant.available
+        }
+        return currentProduct.available
+    }
+    
     var body: some View {
         NavigationView {
             ZStack(alignment: .bottom) {
@@ -40,9 +47,9 @@ struct ProductDetailSheet: View {
                     Divider()
                     HStack(spacing: 16) {
                         Button(action: {
-                            // Add to cart action
+                            viewModel.redirectToProduct()
                         }) {
-                            Text("Buy Now")
+                            Text("More Info")
                                 .font(.system(size: 14, weight: .medium))
                                 .foregroundColor(.black)
                                 .frame(maxWidth: .infinity)
@@ -55,16 +62,17 @@ struct ProductDetailSheet: View {
                         }
                         
                         Button(action: {
-                            // Buy now action
+                            viewModel.addToCart()
                         }) {
-                            Text("Add to cart")
+                            Text(isProductAvailable ? "Add to cart" : "Out of stock")
                                 .font(.system(size: 14, weight: .medium))
                                 .foregroundColor(.white)
                                 .frame(maxWidth: .infinity)
                                 .padding(.vertical, 12)
-                                .background(Color.black)
+                                .background(isProductAvailable ? Color.black : Color.gray)
                                 .cornerRadius(8)
                         }
+                        .disabled(!isProductAvailable)
                     }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 12)
