@@ -43,7 +43,7 @@ struct ProductDetailSheet: View {
                 }
                 
                 // Sticky bottom buttons
-                VStack {
+                VStack(spacing: 0) {
                     Divider()
                     HStack(spacing: 16) {
                         Button(action: {
@@ -76,11 +76,10 @@ struct ProductDetailSheet: View {
                     }
                     .padding(.horizontal, 16)
                     .padding(.vertical, 12)
-                    .background(
-                        Color.white
-                            .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: -2)
-                    )
+                    .background(Color.white)
+                    .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: -2)
                 }
+                .edgesIgnoringSafeArea(.bottom)
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
