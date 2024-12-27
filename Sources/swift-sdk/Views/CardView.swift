@@ -254,7 +254,10 @@ private struct CardItemView: View {
         ZStack {
             if let media = mediaItem.media {
                 if let videoUrl = media.urls?.short {
-                    VideoPlayer(url: URL(string: videoUrl))
+                    VideoPlayer(
+                        url: URL(string: videoUrl),
+                        isMuted: .constant(true)
+                    )
                         .aspectRatio(9/16, contentMode: .fill)
                         .frame(width: 153, height: 271)
                         .clipShape(CustomCornerShape(corners: [.topLeft, .topRight], radius: 8))

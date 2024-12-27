@@ -119,7 +119,7 @@ private struct StoryItemView: View {
                 if let media = mediaItem.media {
                     if let storyUrl = media.urls?.story {
                         if media.files.contains(where: { $0.variant == .story && storyUrl.hasSuffix(".mp4") }) {
-                            VideoPlayer(url: URL(string: storyUrl))
+                            VideoPlayer(url: URL(string: storyUrl), isMuted: .constant(true) )
                                 .aspectRatio(contentMode: .fill)
                                 .allowsHitTesting(false)
                         } else {

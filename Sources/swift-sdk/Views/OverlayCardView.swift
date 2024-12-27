@@ -110,7 +110,11 @@ public struct OverlayCardView: View {
     @ViewBuilder
     private func singleMediaContent(media: PlaylistMedia<MediaProduct>, proxy: GeometryProxy) -> some View {
         if let videoUrl = media.urls?.full {
-            VideoPlayer(url: URL(string: videoUrl), progress: $videoProgress)
+            VideoPlayer(
+                url: URL(string: videoUrl), 
+                progress: $videoProgress,
+                isMuted: $isMuted
+            )
                 .aspectRatio(9/16, contentMode: .fit)
                 .frame(width: proxy.size.width, height: proxy.size.height)
                 .id("video-\(videoUrl)")
