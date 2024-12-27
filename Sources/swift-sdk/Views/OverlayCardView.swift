@@ -40,6 +40,13 @@ public struct OverlayCardView: View {
                                 updateOverlay(forward: false)
                             }
                         
+                        // Center tap area for mute/unmute
+                        Rectangle()
+                            .fill(.black.opacity(0.01))
+                            .onTapGesture {
+                                isMuted.toggle()
+                            }
+                        
                         // Right tap area
                         Rectangle()
                             .fill(.black.opacity(0.01))

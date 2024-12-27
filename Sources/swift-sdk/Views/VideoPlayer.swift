@@ -77,5 +77,5 @@ public struct VideoPlayer: View {
 } 
 
 #Preview {
-    VideoPlayer(url: URL(string: "https://www.boat-lifestyle.com/cdn/shop/files/quinn_wlacs5m0tq7rv91yh1gv9rv7.mp4#t=0.1"), progress: .constant(0.5))
+    VideoPlayer(url: URL(string: "https://www.boat-lifestyle.com/cdn/shop/files/quinn_wlacs5m0tq7rv91yh1gv9rv7.mp4#t=0.1"), progress: .constant(0.5), isMuted: .constant(false))
 }
