@@ -52,7 +52,7 @@ public struct StoryView: View {
     private func storyContent(for mediaItem: PlaylistMediaItemWithProducts, mediaIndex: Int) -> some View {
         Group {
             if mediaItem.type == .media {
-                StoryItemView(mediaItem: mediaItem, mediaIndex: mediaIndex , viewModel: viewModel)
+                StoryItemView(mediaItem: mediaItem, mediaIndex: mediaIndex, storyTitle: mediaItem.media?.storytitle ?? "", storySubtitle: mediaItem.media?.storysubtitle, viewModel: viewModel)
             } else if mediaItem.type == .group {
                 groupContent(for: mediaItem, mediaIndex: mediaIndex)
             }
@@ -67,6 +67,8 @@ public struct StoryView: View {
                 media: mediaItem.group?.medias[0]
             ),
             mediaIndex: mediaIndex,
+            storyTitle: mediaItem.group?.title ?? "",
+            storySubtitle: mediaItem.group?.subtitle,
             viewModel: viewModel
         )
     }
@@ -79,6 +81,10 @@ public struct StoryView: View {
             let connector = try getConnector()
             Task {
                 let playlist = try await connector.getPlaylistData(playlistId: playlistId)
+                if let jsonData = try? JSONEncoder().encode(playlist),
+                   let jsonString = String(data: jsonData, encoding: .utf8) {
+//                    print("Playlist JSON: \(jsonString)")
+                }
                 viewModel.updatePlaylist(playlist)
             }
         } catch {
@@ -93,12 +99,14 @@ public struct StoryView: View {
 // Keep the existing StoryItemView implementation unchanged
 private struct StoryItemView: View {
     let mediaItem: PlaylistMediaItemWithProducts
-    let mediaIndex: Int;
+    let mediaIndex: Int
+    let storyTitle: String
+    let storySubtitle: String?
     @ObservedObject var viewModel: WidgetViewModel
     @ObservedObject private var global = Global.shared
     
     var body: some View {
-        VStack(alignment: .center, spacing: 10) {
+        VStack(alignment: .center, spacing: 4) {
             Button {
                 print("Story View Tapped - Debug", mediaIndex)
                 withAnimation {
@@ -161,15 +169,23 @@ private struct StoryItemView: View {
                 )
             }
             
-            if let media = mediaItem.media,
-               let product = media.products.first {
-                Text(product.title.split(separator: "|").first?.trimmingCharacters(in: .whitespaces) ?? product.title)
-                    .font(.system(size: 10))
+            VStack(spacing: 0) {
+                Text(storyTitle)
+                    .font(.system(size: 11))
                     .multilineTextAlignment(.center)
                     .lineLimit(2)
                     .frame(width: 80)
                     .foregroundColor(.black)
-            }
+                
+                if let subtitle = storySubtitle {
+                    Text(subtitle)
+                        .font(.system(size: 10))
+                        .multilineTextAlignment(.center)
+                        .lineLimit(1)
+                        .frame(width: 80)
+                        .foregroundColor(.black)
+                }
+            }.padding(.top, 2)
         }
     }
 }
