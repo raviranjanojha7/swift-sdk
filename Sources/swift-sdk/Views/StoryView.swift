@@ -148,7 +148,10 @@ private struct StoryItemView: View {
                 }
                 .frame(width: 60, height: 60)
                 .clipShape(Circle())
-                .padding(3)
+                .padding(2)
+                .background(Color.white)
+                .clipShape(Circle())
+                .padding(2)
                 .background(
                     LinearGradient(
                         colors: [.red, .orange, .yellow, .orange],
