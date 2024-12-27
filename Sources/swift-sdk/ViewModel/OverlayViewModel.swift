@@ -31,6 +31,7 @@ class OverlayViewModel: ObservableObject {
     @Published var handle = ""
     @Published var isOverlayMuted = true
     @Published var scrollDirection: ScrollDirection = .horizontal
+    @Published var isMuted: Bool = false
     
     // MARK: - Types
     enum ScrollDirection { 

@@ -44,13 +44,19 @@ struct ProductOptionsView: View {
                 }
             }
         }
+        .onAppear {
+            // Select first variant when view appears
+            if let firstVariant = variants.first,
+               let firstOption = options.first {
+                selectedValues[firstOption.name] = firstVariant.option1
+                updateSelectedVariant()
+            }
+        }
     }
     
     private func updateSelectedVariant() {
         // Find variant that matches all selected options
         let matchingVariant = variants.first { variant in
-            // For now we're only checking option1 since that's what's in the sample data
-            // You might need to check option2, option3 etc. based on your full data structure
             if let selectedValue = selectedValues[options[0].name] {
                 return variant.option1 == selectedValue
             }

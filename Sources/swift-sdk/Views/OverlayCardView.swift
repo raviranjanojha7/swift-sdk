@@ -11,9 +11,9 @@ public struct OverlayCardView: View {
     let mediaItem: PlaylistMediaItemWithProducts
     let index: Int
     @ObservedObject var viewModel: OverlayViewModel
-    @State private var videoProgress: CGFloat? = 0
-    @State private var isMuted: Bool = false
     @ObservedObject private var global = Global.shared
+    @State private var videoProgress: CGFloat? = 0
+    @State private var showVolumeIndicator = false
     
     public var body: some View {
         GeometryReader { proxy in
@@ -31,23 +31,20 @@ public struct OverlayCardView: View {
                         }
                     }
                     
-                    // Navigation overlay (behind other overlays)
+                    // Navigation overlay
                     HStack {
-                        // Left tap area
                         Rectangle()
                             .fill(.black.opacity(0.01))
                             .onTapGesture {
                                 updateOverlay(forward: false)
                             }
                         
-                        // Center tap area for mute/unmute
                         Rectangle()
                             .fill(.black.opacity(0.01))
                             .onTapGesture {
-                                isMuted.toggle()
+                                viewModel.isMuted.toggle()
                             }
                         
-                        // Right tap area
                         Rectangle()
                             .fill(.black.opacity(0.01))
                             .onTapGesture {
@@ -84,9 +81,9 @@ public struct OverlayCardView: View {
                     HStack {
                         Spacer()
                         Button {
-                            isMuted.toggle()
+                            viewModel.isMuted.toggle()
                         } label: {
-                            MuteButton(isMuted: $isMuted)
+                            MuteButton(isMuted: $viewModel.isMuted)
                         }
                     }
                     .padding(.horizontal, 16)
@@ -109,6 +106,37 @@ public struct OverlayCardView: View {
                     }
                 }
                 .padding(.bottom, 30)
+                
+                // Volume indicator
+                if showVolumeIndicator {
+                    VStack {
+                        Spacer()
+                        HStack {
+                            Spacer()
+                            Image(systemName: viewModel.isMuted ? "speaker.slash.fill" : "speaker.wave.2.fill")
+                                .font(.system(size: 32))
+                                .foregroundColor(.white)
+                                .padding(20)
+                                .background(Color.black.opacity(0.4))
+                                .clipShape(Circle())
+                            Spacer()
+                        }
+                        Spacer()
+                    }
+                    .transition(.opacity)
+                }
+            }
+            .onChange(of: viewModel.isMuted) { _ in
+                withAnimation {
+                    showVolumeIndicator = true
+                }
+                
+                Task {
+                    try? await Task.sleep(nanoseconds: 1 * 1_000_000_000)
+                    withAnimation {
+                        showVolumeIndicator = false
+                    }
+                }
             }
         }
         .frame(maxWidth: .infinity, maxHeight: .infinity)
@@ -120,7 +148,7 @@ public struct OverlayCardView: View {
             VideoPlayer(
                 url: URL(string: videoUrl), 
                 progress: $videoProgress,
-                isMuted: $isMuted
+                isMuted: $viewModel.isMuted
             )
                 .aspectRatio(9/16, contentMode: .fit)
                 .frame(width: proxy.size.width, height: proxy.size.height)

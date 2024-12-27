@@ -97,65 +97,76 @@ private struct StoryItemView: View {
     @ObservedObject var viewModel: WidgetViewModel
     @ObservedObject private var global = Global.shared
     
-    
     var body: some View {
-        Button {
-            print("Story View Tapped - Debug", mediaIndex)
-            withAnimation {
-                let newOverlayState = OverlayState(
-                    activeIndex: mediaIndex,
-                    playlist: viewModel.playlist,
-                    widgetType: .story,  
-                    handle: ""
-                )
-                if let quinn = global.quinn {
-                    var updatedQuinn = quinn
-                    updatedQuinn.overlayState = newOverlayState
-                    global.quinn = updatedQuinn
+        VStack(alignment: .center, spacing: 10) {
+            Button {
+                print("Story View Tapped - Debug", mediaIndex)
+                withAnimation {
+                    let newOverlayState = OverlayState(
+                        activeIndex: mediaIndex,
+                        playlist: viewModel.playlist,
+                        widgetType: .story,  
+                        handle: ""
+                    )
+                    if let quinn = global.quinn {
+                        var updatedQuinn = quinn
+                        updatedQuinn.overlayState = newOverlayState
+                        global.quinn = updatedQuinn
+                    }
                 }
-            }
-        } label: {
-            ZStack {
-                if let media = mediaItem.media {
-                    if let storyUrl = media.urls?.story {
-                        if media.files.contains(where: { $0.variant == .story && storyUrl.hasSuffix(".mp4") }) {
-                            VideoPlayer(url: URL(string: storyUrl), isMuted: .constant(true) )
-                                .aspectRatio(contentMode: .fill)
-                                .allowsHitTesting(false)
-                        } else {
-                            AsyncImage(url: URL(string: storyUrl)) { phase in
-                                switch phase {
-                                case .success(let image):
-                                    image
-                                        .resizable()
-                                        .aspectRatio(contentMode: .fill)
-                                        .allowsHitTesting(false)
-                                case .failure(_):
-                                    Image(systemName: "person.circle.fill")
-                                        .resizable()
-                                        .allowsHitTesting(false)
-                                case .empty:
-                                    ProgressView()
-                                        .allowsHitTesting(false)
-                                @unknown default:
-                                    ProgressView()
-                                        .allowsHitTesting(false)
+            } label: {
+                ZStack {
+                    if let media = mediaItem.media {
+                        if let storyUrl = media.urls?.story {
+                            if media.files.contains(where: { $0.variant == .story && storyUrl.hasSuffix(".mp4") }) {
+                                VideoPlayer(url: URL(string: storyUrl), isMuted: .constant(true))
+                                    .aspectRatio(contentMode: .fill)
+                                    .allowsHitTesting(false)
+                            } else {
+                                AsyncImage(url: URL(string: storyUrl)) { phase in
+                                    switch phase {
+                                    case .success(let image):
+                                        image
+                                            .resizable()
+                                            .aspectRatio(contentMode: .fill)
+                                            .allowsHitTesting(false)
+                                    case .failure(_):
+                                        Image(systemName: "person.circle.fill")
+                                            .resizable()
+                                            .allowsHitTesting(false)
+                                    case .empty:
+                                        ProgressView()
+                                            .allowsHitTesting(false)
+                                    @unknown default:
+                                        ProgressView()
+                                            .allowsHitTesting(false)
+                                    }
                                 }
                             }
                         }
                     }
                 }
-            }
-            .frame(width: 60, height: 60)
-            .clipShape(Circle())
-            .padding(3)
-            .background(
-                LinearGradient(
-                    colors: [.red, .orange, .yellow, .orange],
-                    startPoint: .top, endPoint: .bottom
-                )
+                .frame(width: 60, height: 60)
                 .clipShape(Circle())
-            )
+                .padding(3)
+                .background(
+                    LinearGradient(
+                        colors: [.red, .orange, .yellow, .orange],
+                        startPoint: .top, endPoint: .bottom
+                    )
+                    .clipShape(Circle())
+                )
+            }
+            
+            if let media = mediaItem.media,
+               let product = media.products.first {
+                Text(product.title.split(separator: "|").first?.trimmingCharacters(in: .whitespaces) ?? product.title)
+                    .font(.system(size: 10))
+                    .multilineTextAlignment(.center)
+                    .lineLimit(2)
+                    .frame(width: 80)
+                    .foregroundColor(.black)
+            }
         }
     }
 }
