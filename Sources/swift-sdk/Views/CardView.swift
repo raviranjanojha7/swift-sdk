@@ -20,6 +20,13 @@ public struct CardView: View {
         self.pageHandle = pageHandle
         self.layer = layer
         _viewModel = StateObject(wrappedValue: WidgetViewModel())
+        
+        // Set the page handle
+        if let quinn = Global.shared.quinn {
+            var updatedQuinn = quinn
+            updatedQuinn.pageHandle = pageHandle
+            Global.shared.quinn = updatedQuinn
+        }
     }
     
     public var body: some View {

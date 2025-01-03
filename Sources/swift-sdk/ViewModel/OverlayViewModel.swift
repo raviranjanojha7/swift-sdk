@@ -32,6 +32,7 @@ class OverlayViewModel: ObservableObject {
     @Published var isOverlayMuted = true
     @Published var scrollDirection: ScrollDirection = .horizontal
     @Published var isMuted: Bool = false
+    @Published var overlayOpenedTime: Date?
     
     // MARK: - Types
     enum ScrollDirection { 
@@ -68,7 +69,36 @@ class OverlayViewModel: ObservableObject {
         }
         return String(start[..<end])
     }
-
+    
+    func getMediaId() -> String {
+        if let mediaItem = mediaData[String(activeIndex)] {
+            if mediaItem.type == .media {
+                return mediaItem.media?.id ?? ""
+            } else if mediaItem.type == .group {
+                if let group = mediaItem.group,
+                   let currentMedia = group.medias[safe: groupMediaIndex] {
+                    return currentMedia.id
+                }
+            }
+        }
+        return ""
+    }
+    
+    func getGroupId() -> String {
+        if let mediaItem = mediaData[String(activeIndex)],
+           mediaItem.type == .group {
+            return mediaItem.group?.id ?? ""
+        }
+        return ""
+    }
+    
+    func getPlaylistId() -> String {
+           return playlist?.id ?? ""
+       }
+       
+       func getWidgetType() -> String {
+           return widgetType.rawValue
+       }
 }
 
 

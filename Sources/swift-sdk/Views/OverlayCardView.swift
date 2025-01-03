@@ -12,7 +12,8 @@ public struct OverlayCardView: View {
     let index: Int
     @ObservedObject var viewModel: OverlayViewModel
     @ObservedObject private var global = Global.shared
-    @State private var videoProgress: CGFloat? = 0
+    @State private var videoProgress: CGFloat?
+    @State private var watchDuration: Double?
     @State private var showVolumeIndicator = false
     
     public var body: some View {
@@ -59,6 +60,23 @@ public struct OverlayCardView: View {
                             Button {
                                 if let quinn = global.quinn {
                                     var updatedQuinn = quinn
+                                    
+                                    // Calculate total time if overlayOpenedTime exists
+                                    var totalTime = "0"
+                                    if let openedTime = viewModel.overlayOpenedTime {
+                                        let timeInterval = Date().timeIntervalSince(openedTime)
+                                        totalTime = String(format: "%.0f", timeInterval)
+                                    }
+                                    
+                                    // Track overlay closed event
+                                    EventsManager.shared.widgetOverlayClosed(
+                                        playlistId: viewModel.playlistId,
+                                        widgetType: viewModel.widgetType,
+                                        totalTime: totalTime
+                                    )
+                                    
+                                    // Reset overlay state and time
+                                    viewModel.overlayOpenedTime = nil
                                     updatedQuinn.overlayState = nil
                                     global.quinn = updatedQuinn
                                 }
@@ -95,7 +113,7 @@ public struct OverlayCardView: View {
                             ScrollView(.horizontal, showsIndicators: false) {
                                 HStack(spacing: 0) {
                                     ForEach(products, id: \.id) { product in
-                                        OverlayProductInformation(product: product, viewModel: viewModel)
+                                        OverlayProductInformation(product: product, media: mediaItem, viewModel: viewModel)
                                             .frame(width: geometry.size.width * 0.95)
                                     }
                                 }
@@ -148,11 +166,16 @@ public struct OverlayCardView: View {
             VideoPlayer(
                 url: URL(string: videoUrl), 
                 progress: $videoProgress,
+                watchDuration: $watchDuration,
                 isMuted: $viewModel.isMuted
             )
                 .aspectRatio(9/16, contentMode: .fit)
                 .frame(width: proxy.size.width, height: proxy.size.height)
                 .id("video-\(videoUrl)")
+                .onAppear{
+                    EventsManager.shared.productViewed(playlistId: viewModel.playlistId, mediaId: media.id, widgetType: viewModel.widgetType, activeIndex: viewModel.activeIndex, groupMediaIndex: viewModel.groupMediaIndex, produdctId: media.products[0].id, productHandle: media.products[0].handle, variantId: media.products[0].variants[0].id);
+                }
+
         } else if let posterUrl = media.urls?.poster {
             AsyncImage(url: URL(string: posterUrl)) { phase in
                 switch phase {
@@ -171,6 +194,8 @@ public struct OverlayCardView: View {
                 @unknown default:
                     ProgressView()
                 }
+            }.onAppear{
+                EventsManager.shared.productViewed(playlistId: viewModel.playlistId, mediaId: media.id, widgetType: viewModel.widgetType, activeIndex: viewModel.activeIndex, groupMediaIndex: viewModel.groupMediaIndex, produdctId: media.products[0].id, productHandle: media.products[0].handle, variantId: media.products[0].variants[0].id);
             }
         }
     }
@@ -207,8 +232,25 @@ public struct OverlayCardView: View {
     private func moveToNextItem() {
         if let playlist = viewModel.playlist,
            viewModel.activeIndex < playlist.media.count - 1 {
+            // Track swipe event before changing index
+            let currentMedia = playlist.media[viewModel.activeIndex]
+            let mediaId = currentMedia.media?.id ?? currentMedia.group?.id ?? ""
+                        
+            EventsManager.shared.widgetOverlaySwiped(
+                playlistId: viewModel.playlistId,
+                mediaId: mediaId,
+                widgetType: viewModel.widgetType,
+                activeIndex: viewModel.activeIndex,
+                groupMediaIndex: viewModel.groupMediaIndex,
+                watchDuration: watchDuration ?? 0,
+                direction: "next",
+                videoDuration: 0
+            )
+            
             viewModel.activeIndex += 1
-            viewModel.groupMediaIndex = 0 // Reset group index when moving to next item
+            viewModel.groupMediaIndex = 0
+            watchDuration = nil
+            videoProgress = nil
         } else {
             // Close overlay if we're at the end
             if let quinn = global.quinn {
@@ -221,7 +263,24 @@ public struct OverlayCardView: View {
     
     private func moveToPreviousItem() {
         if viewModel.activeIndex > 0 {
+            let currentMedia = viewModel.playlist?.media[viewModel.activeIndex]
+            let mediaId = currentMedia?.media?.id ?? currentMedia?.group?.id ?? ""
+                        
+            EventsManager.shared.widgetOverlaySwiped(
+                playlistId: viewModel.playlistId,
+                mediaId: mediaId,
+                widgetType: viewModel.widgetType,
+                activeIndex: viewModel.activeIndex,
+                groupMediaIndex: viewModel.groupMediaIndex,
+                watchDuration: watchDuration ?? 0,
+                direction: "previous",
+                videoDuration: 0
+            )
+            
             viewModel.activeIndex -= 1
+            watchDuration = nil
+            videoProgress = nil
+            
             // When moving to previous item, set group index to last item if it's a group
             if let previousItem = viewModel.playlist?.media[viewModel.activeIndex],
                previousItem.type == .group,

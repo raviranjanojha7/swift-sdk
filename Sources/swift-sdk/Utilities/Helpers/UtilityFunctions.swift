@@ -30,3 +30,22 @@ func getHandleHash(handle: String, shopType: String = "SHOPIFY") async throws ->
         return handle
     }
 }
+
+
+
+@MainActor
+func shouldAddPropertiesToATC(productId: String, variantId: String) -> Bool {
+    let products = ProductViewManager.shared.getProductViewed()
+    if products.isEmpty { return false }
+    
+    let productViewed = products.first { product in
+        product.productid == productId || product.variantid == variantId
+    }
+    
+    let abTesting = Global.shared.quinn?.settings.abTesting ?? false
+    let cartTracking = Global.shared.quinn?.settings.cartTracking ?? false
+    
+    return productViewed != nil || abTesting || cartTracking
+}
+
+

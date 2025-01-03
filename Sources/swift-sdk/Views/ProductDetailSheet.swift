@@ -9,6 +9,7 @@ import SwiftUI
 
 struct ProductDetailSheet: View {
     let product: MediaProduct
+    let media: PlaylistMediaItemWithProducts
     @Environment(\.dismiss) var dismiss
     @ObservedObject var viewModel: OverlayViewModel
     
@@ -23,10 +24,85 @@ struct ProductDetailSheet: View {
         return currentProduct.available
     }
     
+    private func handleAddToCart() {
+        if let productId = viewModel.selectedProduct?.id,
+           let variantId = viewModel.selectedVariant?.id,
+           let productPrice = viewModel.selectedProduct?.price_min {
+            Task {
+                await EventsManager.shared.addToCart(
+                    productId: productId,
+                    variantId: variantId,
+                    productPrice: productPrice
+                )
+            }
+        }
+        viewModel.addToCart()
+    }
+    
+    private func handleMoreInfo() {
+        if let mediaId = media.media?.id ??
+            media.group?.id  {
+            Task {
+                 EventsManager.shared.ctaClicked(
+                    playlistId: viewModel.playlistId,
+                    mediaId: mediaId,
+                    widgetType: viewModel.widgetType,
+                    ctaTitle: media.media?.ctatitle ?? "",
+                    ctaLink: media.media?.ctalink ?? "",
+                    index: viewModel.activeIndex,
+                    subIndex: viewModel.groupMediaIndex
+                )
+            }
+        }
+        viewModel.redirectToProduct()
+    }
+    
+    private var bottomButtons: some View {
+        VStack(spacing: 0) {
+            Divider()
+            HStack(spacing: 16) {
+                moreInfoButton
+                addToCartButton
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(Color.white)
+            .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: -2)
+        }
+        .edgesIgnoringSafeArea(.bottom)
+    }
+    
+    private var moreInfoButton: some View {
+        Button(action: handleMoreInfo) {
+            Text("More Info")
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(.black)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .background(Color.white)
+                .overlay(
+                    RoundedRectangle(cornerRadius: 8)
+                        .stroke(Color.black, lineWidth: 1)
+                )
+        }
+    }
+    
+    private var addToCartButton: some View {
+        Button(action: handleAddToCart) {
+            Text(isProductAvailable ? "Add to cart" : "Out of stock")
+                .font(.system(size: 14, weight: .medium))
+                .foregroundColor(.white)
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+                .background(isProductAvailable ? Color.black : Color.gray)
+                .cornerRadius(8)
+        }
+        .disabled(!isProductAvailable)
+    }
+    
     var body: some View {
         NavigationView {
             ZStack(alignment: .bottom) {
-                // Main scrolling content
                 ScrollView {
                     VStack(alignment: .leading, spacing: 16) {
                         ProductImagesSection(currentProduct: currentProduct)
@@ -38,48 +114,10 @@ struct ProductDetailSheet: View {
                         ProductListSection(viewModel: viewModel)
                         ProductDescriptionSection(currentProduct: currentProduct)
                     }
-                    // Add padding at bottom to account for button height
                     .padding(.bottom, 80)
                 }
                 
-                // Sticky bottom buttons
-                VStack(spacing: 0) {
-                    Divider()
-                    HStack(spacing: 16) {
-                        Button(action: {
-                            viewModel.redirectToProduct()
-                        }) {
-                            Text("More Info")
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(.black)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 12)
-                                .background(Color.white)
-                                .overlay(
-                                    RoundedRectangle(cornerRadius: 8)
-                                        .stroke(Color.black, lineWidth: 1)
-                                )
-                        }
-                        
-                        Button(action: {
-                            viewModel.addToCart()
-                        }) {
-                            Text(isProductAvailable ? "Add to cart" : "Out of stock")
-                                .font(.system(size: 14, weight: .medium))
-                                .foregroundColor(.white)
-                                .frame(maxWidth: .infinity)
-                                .padding(.vertical, 12)
-                                .background(isProductAvailable ? Color.black : Color.gray)
-                                .cornerRadius(8)
-                        }
-                        .disabled(!isProductAvailable)
-                    }
-                    .padding(.horizontal, 16)
-                    .padding(.vertical, 12)
-                    .background(Color.white)
-                    .shadow(color: Color.black.opacity(0.1), radius: 4, x: 0, y: -2)
-                }
-                .edgesIgnoringSafeArea(.bottom)
+                bottomButtons
             }
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
@@ -189,13 +227,41 @@ private struct PriceView: View {
 private struct ProductListSection: View {
     @ObservedObject var viewModel: OverlayViewModel
     
+    private func getProducts() -> [MediaProduct]? {
+        guard let playlist = viewModel.playlist,
+              let currentMedia = playlist.media[safe: viewModel.activeIndex] else {
+            return nil
+        }
+        
+        let products = currentMedia.type == .media ? 
+            currentMedia.media?.products : 
+            currentMedia.group?.medias[viewModel.groupMediaIndex].products
+        
+        if let productCount = products?.count, productCount > 1 {
+            return products
+        }
+        return nil
+    }
+    
+    private func trackProductView(for product: MediaProduct) {
+        let mediaId = viewModel.playlist?.media[safe: viewModel.activeIndex]?.media?.id ?? 
+                     viewModel.playlist?.media[safe: viewModel.activeIndex]?.group?.id ?? ""
+                     
+        EventsManager.shared.productViewed(
+            playlistId: viewModel.playlistId,
+            mediaId: mediaId,
+            widgetType: viewModel.widgetType,
+            activeIndex: viewModel.activeIndex,
+            groupMediaIndex: viewModel.groupMediaIndex,
+            produdctId: product.id,
+            productHandle: product.handle,
+            variantId: product.variants[0].id
+        )
+    }
+    
     var body: some View {
         Group {
-            if let playlist = viewModel.playlist,
-               let currentMedia = playlist.media[safe: viewModel.activeIndex],
-               let products = currentMedia.type == .media ? currentMedia.media?.products : currentMedia.group?.medias[viewModel.groupMediaIndex].products,
-               products.count > 1 {
-                
+            if let products = getProducts() {
                 VStack(alignment: .leading, spacing: 8) {
                     Text("Selected Product")
                         .font(.system(size: 14, weight: .bold))
@@ -208,6 +274,7 @@ private struct ProductListSection: View {
                                     isSelected: viewModel.selectedProduct?.id == item.id
                                 ) {
                                     viewModel.selectedProduct = item
+                                    trackProductView(for: item)
                                 }
                             }
                         }

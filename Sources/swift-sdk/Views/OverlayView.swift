@@ -65,6 +65,7 @@ public struct OverlayView: View {
             .onAppear {
                 // First set the playlist
                 viewModel.playlist = overlayState.playlist
+                viewModel.overlayOpenedTime = Date()
                 
                 // Then set the active index with a slight delay to ensure proper initialization
                 DispatchQueue.main.async {
@@ -72,6 +73,23 @@ public struct OverlayView: View {
                     viewModel.widgetType = overlayState.widgetType ?? .story
                     viewModel.handle = overlayState.handle ?? ""
                 }
+                
+                let currentMedia = overlayState.playlist?.media[safe: overlayState.activeIndex ?? 0]
+                let mediaId = currentMedia?.media?.id ?? currentMedia?.group?.id ?? ""
+                
+                let firstProduct = currentMedia?.media?.products.first ??
+                                 currentMedia?.group?.medias[viewModel.groupMediaIndex].products.first
+                
+                EventsManager.shared.widgetOverlayOpened(
+                    playlistId: overlayState.playlist?.id ?? "",
+                    mediaId: mediaId,
+                    widgetType: overlayState.widgetType ?? .story,
+                    activeIndex: overlayState.activeIndex ?? 0,
+                    groupMediaIndex: viewModel.groupMediaIndex,
+                    produdctId: firstProduct?.id ?? "",
+                    productHandle: firstProduct?.handle ?? "",
+                    variantId: firstProduct?.variants.first?.id ?? ""
+                )
             }
             .transition(.opacity)
             .frame(maxWidth: .infinity, maxHeight: .infinity)

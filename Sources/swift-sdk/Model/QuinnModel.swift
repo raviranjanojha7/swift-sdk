@@ -39,12 +39,12 @@ public protocol QuinnProtocol {
     var appId: String { get }
     var pageType: String? { get }
     var pageId: String? { get }
-    var pageHandle: String? { get }
+    var pageHandle: String? { get set }
     var overlayState: OverlayState? { get set }
-    var overlayLoadStartTime: Double? { get }
-    var overlayLoadEndTime: Double? { get }
-    var overlayOpenTime: Double? { get }
-    var overlayDuration: Double? { get }
+    var overlayLoadStartTime: Double? { get set }
+    var overlayLoadEndTime: Double? { get set }
+    var overlayOpenTime: Double? { get set }
+    var overlayDuration: Double? { get set }
     var overlayWidth: Double? { get }
     var overlayHeight: Double? { get }
     var disableGradient: Bool? { get }
@@ -67,12 +67,12 @@ struct Quinn: QuinnProtocol, Codable, Identifiable {
     let appId: String
     let pageType: String?
     let pageId: String?
-    let pageHandle: String?
+    var pageHandle: String?
     var overlayState: OverlayState?
-    let overlayLoadStartTime: Double?
-    let overlayLoadEndTime: Double?
-    let overlayOpenTime: Double?
-    let overlayDuration: Double?
+    var overlayLoadStartTime: Double?
+    var overlayLoadEndTime: Double?
+    var overlayOpenTime: Double?
+    var overlayDuration: Double?
     let overlayWidth: Double?
     let overlayHeight: Double?
     let disableGradient: Bool?
